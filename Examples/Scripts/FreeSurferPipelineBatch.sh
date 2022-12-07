@@ -43,7 +43,7 @@ get_batch_options() {
 
 get_batch_options "$@"
 
-EnvironmentScript="${$HCPPIPEDIR}/Examples/Scripts/SetUpHCPPipeline_Custom.sh" # Pipeline environment script
+EnvironmentScript="${HCPPIPEDIR}/Examples/Scripts/SetUpHCPPipeline_Custom.sh" # Pipeline environment script
 
 
 if [ -n "${command_line_specified_study_folder}" ]; then
@@ -84,10 +84,10 @@ for Subject in $Subjlist ; do
 
   #Input Variables
   SubjectID="$Subject" #FreeSurfer Subject ID Name
-  SubjectDIR="${StudyFolder}/${Subject}/T1w" #Location to Put FreeSurfer Subject's Folder
-  T1wImage="${StudyFolder}/${Subject}/T1w/T1w_acpc_dc_restore.nii.gz" #T1w FreeSurfer Input (Full Resolution)
-  T1wImageBrain="${StudyFolder}/${Subject}/T1w/T1w_acpc_dc_restore_brain.nii.gz" #T1w FreeSurfer Input (Full Resolution)
-  T2wImage="${StudyFolder}/${Subject}/T1w/T2w_acpc_dc_restore.nii.gz" #T2w FreeSurfer Input (Full Resolution)
+  SubjectDIR="${StudyFolder}/derivatives/hcp-pipelines/${Subject}/T1w" #Location to Put FreeSurfer Subject's Folder
+  T1wImage="${StudyFolder}/derivatives/hcp-pipelines/${Subject}/T1w/sub-${Subject}_T1w_acpc_dc_restore.nii.gz" #T1w FreeSurfer Input (Full Resolution)
+  T1wImageBrain="${StudyFolder}/derivatives/hcp-pipelines/${Subject}/T1w/sub-${Subject}_T1w_acpc_dc_restore_brain.nii.gz" #T1w FreeSurfer Input (Full Resolution)
+  T2wImage="${StudyFolder}/derivatives/hcp-pipelines/${Subject}/T1w/sub-${Subject}_T2w_acpc_dc_restore.nii.gz" #T2w FreeSurfer Input (Full Resolution)
 
   if [[ "${command_line_specified_run_local}" == "TRUE" || "$QUEUE" == "" ]] ; then
       echo "About to locally run ${HCPPIPEDIR}/FreeSurfer/FreeSurferPipeline.sh"
