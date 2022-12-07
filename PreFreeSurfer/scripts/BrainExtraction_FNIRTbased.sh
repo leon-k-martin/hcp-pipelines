@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/bash
 
 # Requirements for this script
 #  installed versions of: FSL
@@ -162,13 +162,15 @@ echo " END: `date`" >> $WD/log.txt
 ########################################## QA STUFF ##########################################
 
 if [ -e $WD/qa.txt ] ; then rm -f $WD/qa.txt ; fi
-echo "cd `pwd`" >> $WD/qa.txt
+echo "# cd `pwd`" >> $WD/qa.txt
 echo "# Check that the following brain mask does not exclude any brain tissue (and is reasonably good at not including non-brain tissue outside of the immediately surrounding CSF)" >> $WD/qa.txt
-echo "fslview $Input $OutputBrainMask -l Red -t 0.5" >> $WD/qa.txt
+echo "fsleyes render -of ${OutputBrainMask}.png $Input $OutputBrainMask --alpha 40 -cm Red"  >> $WD/qa.txt
+# echo "fsleyes $Input $OutputBrainMask -l Red -t 0.5" >> $WD/qa.txt
 echo "# Optional debugging: linear and non-linear registration result" >> $WD/qa.txt
-echo "fslview $Reference2mm $WD/${BaseName}_to_MNI_roughlin.nii.gz" >> $WD/qa.txt
-echo "fslview $Reference $WD/${BaseName}_to_MNI_nonlin.nii.gz" >> $WD/qa.txt
+echo "fsleyes render -of $WD/${BaseName}_to_MNI_roughlin.png $Reference2mm $WD/${BaseName}_to_MNI_roughlin.nii.gz" >> $WD/qa.txt
+echo "fsleyes render -of $WD/${BaseName}_to_MNI_nonlin.png $Reference $WD/${BaseName}_to_MNI_nonlin.nii.gz" >> $WD/qa.txt
 
+source $WD/qa.txt
 ##############################################################################################
 
 
