@@ -1,8 +1,8 @@
-#!/bin/bash 
+#!/bin/bash
 
 # Requirements for this script
 #  installed versions of: FSL, FreeSurfer
-#  environment: HCPPIPEDIR, FSLDIR, FREESURFER_HOME, HCPPIPEDIR_Global 
+#  environment: HCPPIPEDIR, FSLDIR, FREESURFER_HOME, HCPPIPEDIR_Global
 
 # ---------------------------------------------------------------------------
 #  Constants for specification of susceptibility distortion Correction Method
@@ -84,9 +84,9 @@ Usage: ${script_name} [options]
   Options required for all --method options except for "${NONE_METHOD_OPT}":
 
     [--echospacing=<*effective* echo spacing of fMRI input, in seconds>]
-    [--unwarpdir=<PE direction for unwarping according to the *voxel* axes: 
+    [--unwarpdir=<PE direction for unwarping according to the *voxel* axes:
        {x,y,z,x-,y-,z-} or {i,j,k,i-,j-,k-}>]
-          Polarity matters!  If your distortions are twice as bad as in the original images, 
+          Polarity matters!  If your distortions are twice as bad as in the original images,
           try using the opposite polarity for --unwarpdir.
 
   Options required if using --method="${SPIN_ECHO_METHOD_OPT}":
@@ -192,7 +192,7 @@ defaultopt() {
 #      Jacobian2T1w
 #      ${ScoutInputFile}
 #      ${ScoutInputFile}2T1w_init
-#      ${ScoutInputFile}_warp     
+#      ${ScoutInputFile}_warp
 #
 #    FreeSurfer section:
 #      fMRI2str.mat  fMRI2str
@@ -315,7 +315,7 @@ if [ ! "$DistortionCorrection" = ${NONE_METHOD_OPT} ]; then
   if [[ ${UnwarpDir} != [xyzijk] && ${UnwarpDir} != -[xyzijk] && ${UnwarpDir} != [xyzijk]- ]]; then
     log_Err_Abort "Error: Invalid entry for --unwarpdir ($UnwarpDir)"
   fi
-    
+
   # FSL's naming convention for 'epi_reg --pedir' is {x,y,z,-x,-y,-z}
   # So, swap out any {i,j,k} for {x,y,z} (using bash pattern replacement)
   # and then make sure any '-' sign is preceding
@@ -388,7 +388,7 @@ case $DistortionCorrection in
                 --gdcoeffs=${GradientDistortionCoeffs}
 
         else
-            log_Err_Abort "Script programming error. Unhandled Distortion Correction Method: ${DistortionCorrection}"            
+            log_Err_Abort "Script programming error. Unhandled Distortion Correction Method: ${DistortionCorrection}"
         fi
 
         cp ${ScoutInputName}.nii.gz ${WD}/Scout.nii.gz
@@ -556,11 +556,11 @@ case $DistortionCorrection in
 
             log_Msg "---> Copy Scout image"
             ${FSLDIR}/bin/imcp ${ScoutInputName} ${WD}/${ScoutInputFile}${ScoutExtension}
-            
+
             log_Msg "---> Creating uniform Jacobian Volume"
             # Create fake Jacobian Volume for Regular Fieldmaps (all ones)
             ${FSLDIR}/bin/fslmaths ${T1wImage} -mul 0 -add 1 -bin ${WD}/Jacobian.nii.gz
-            
+
             log_Msg "---> register scout image to T1w"
             # register scout image to T1w
             # this is just an initial registration, refined later in this script, but it is actually pretty good
@@ -573,7 +573,7 @@ case $DistortionCorrection in
             fi
 
             # In the NONE condition, we have no distortion Warpfield.  Convert the Scout2T1 registration (affine)
-            # to its warp field equivalent, since we need "${WD}/${ScoutInputFile}${ScoutExtension}2T1w_init_warp" later            
+            # to its warp field equivalent, since we need "${WD}/${ScoutInputFile}${ScoutExtension}2T1w_init_warp" later
             # generate Scout2T1 warpfield and spline interpolated images
             log_Msg "generate combined warpfields and spline interpolated images"
             ${FSLDIR}/bin/convertwarp --relout --rel -r ${T1wImage} --premat=${WD}/${ScoutInputFile}${ScoutExtension}2T1w_init.mat -o ${WD}/${ScoutInputFile}${ScoutExtension}2T1w_init_warp
@@ -665,7 +665,7 @@ if [ -e ${FreeSurferSubjectFolder}/${FreeSurferSubjectID}_1mm ] ; then
   # Use "hidden" bbregister DOF options (--6 (default), --9, or --12 are supported)
   log_Msg "Use \"hidden\" bbregister DOF options"
   ${FREESURFER_HOME}/bin/bbregister --s "${FreeSurferSubjectID}_1mm" --mov ${WD}/${ScoutInputFile}${ScoutExtension}2T1w_init_1mm.nii.gz --surf white.deformed --init-reg ${FreeSurferSubjectFolder}/${FreeSurferSubjectID}_1mm/mri/transforms/eye.dat --bold --reg ${WD}/EPItoT1w.dat --${dof} --o ${WD}/${ScoutInputFile}${ScoutExtension}2T1w_1mm.nii.gz
-  tkregister2 --noedit --reg ${WD}/EPItoT1w.dat --mov ${WD}/${ScoutInputFile}${ScoutExtension}2T1w_init_1mm.nii.gz --targ ${FreeSurferSubjectFolder}/${FreeSurferSubjectID}_1mm/mri/T1w_hires.nii.gz --fslregout ${WD}/fMRI2str_1mm.mat
+  tkregister2_cmdl --noedit --reg ${WD}/EPItoT1w.dat --mov ${WD}/${ScoutInputFile}${ScoutExtension}2T1w_init_1mm.nii.gz --targ ${FreeSurferSubjectFolder}/${FreeSurferSubjectID}_1mm/mri/T1w_hires.nii.gz --fslregout ${WD}/fMRI2str_1mm.mat
   applywarp --interp=spline -i ${WD}/${ScoutInputFile}${ScoutExtension}2T1w_init_1mm.nii.gz -r ${FreeSurferSubjectFolder}/${FreeSurferSubjectID}_1mm/mri/T1w_hires.nii.gz --premat=${WD}/fMRI2str_1mm.mat -o ${WD}/${ScoutInputFile}${ScoutExtension}2T1w_1mm.nii.gz
 
   convert_xfm -omat ${FreeSurferSubjectFolder}/${FreeSurferSubjectID}_1mm/mri/transforms/temp.mat -concat ${WD}/fMRI2str_1mm.mat ${FreeSurferSubjectFolder}/${FreeSurferSubjectID}_1mm/mri/transforms/real2fs.mat
@@ -676,13 +676,13 @@ else
   log_Msg "${FreeSurferSubjectFolder}/${FreeSurferSubjectID}_1mm does not exist. FreeSurferNHP.sh was not used."
 
   # Run Normally
-  log_Msg "Run Normally" 
+  log_Msg "Run Normally"
   # Use "hidden" bbregister DOF options (--6 (default), --9, or --12 are supported)
   log_Msg "Use \"hidden\" bbregister DOF options"
   ${FREESURFER_HOME}/bin/bbregister --s ${FreeSurferSubjectID} --mov ${WD}/${ScoutInputFile}${ScoutExtension}2T1w_init.nii.gz --surf white.deformed --init-reg ${FreeSurferSubjectFolder}/${FreeSurferSubjectID}/mri/transforms/eye.dat --bold --reg ${WD}/EPItoT1w.dat --${dof} --o ${WD}/${ScoutInputFile}${ScoutExtension}2T1w.nii.gz
   # Create FSL-style matrix and then combine with existing warp fields
   log_Msg "Create FSL-style matrix and then combine with existing warp fields"
-  ${FREESURFER_HOME}/bin/tkregister2 --noedit --reg ${WD}/EPItoT1w.dat --mov ${WD}/${ScoutInputFile}${ScoutExtension}2T1w_init.nii.gz --targ ${T1wImage}.nii.gz --fslregout ${WD}/fMRI2str_refinement.mat
+  ${FREESURFER_HOME}/bin/tkregister2_cmdl --noedit --reg ${WD}/EPItoT1w.dat --mov ${WD}/${ScoutInputFile}${ScoutExtension}2T1w_init.nii.gz --targ ${T1wImage}.nii.gz --fslregout ${WD}/fMRI2str_refinement.mat
 fi
 ${FSLDIR}/bin/convertwarp --relout --rel --warp1=${WD}/${ScoutInputFile}${ScoutExtension}2T1w_init_warp.nii.gz --ref=${T1wImage} --postmat=${WD}/fMRI2str_refinement.mat --out=${WD}/fMRI2str.nii.gz
 
@@ -735,7 +735,7 @@ then
             #don't need the T1w versions
             #${FSLDIR}/bin/imcp ${WD}/${File}_unbias ${SubjectFolder}/T1w/Results/${NameOffMRI}/${NameOffMRI}_${File}
         done
-        
+
         #copy recieve field, pseudo transmit field, and dropouts, etc to results dir
         ${FSLDIR}/bin/imcp "$WD/ComputeSpinEchoBiasField/${NameOffMRI}_dropouts" "$SubjectFolder/T1w/Results/$NameOffMRI/${NameOffMRI}_dropouts"
         ${FSLDIR}/bin/imcp "$WD/ComputeSpinEchoBiasField/${NameOffMRI}_sebased_bias" "$SubjectFolder/T1w/Results/$NameOffMRI/${NameOffMRI}_sebased_bias"
