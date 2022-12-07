@@ -82,10 +82,10 @@ cp --preserve=timestamps $SubjectDIR/$SubjectID/surf/rh.area $SubjectDIR/$Subjec
 cp --preserve=timestamps $SubjectDIR/$SubjectID/label/rh.cortex.label $SubjectDIR/$SubjectID/label/rh.cortex.prehires.label
 
 # generate registration between conformed and hires based on headers
-# Note that the convention of tkregister2 is that the resulting $reg is the registration
+# Note that the convention of tkregister2_cmdl is that the resulting $reg is the registration
 # matrix that maps from the "--targ" space into the "--mov" space.  So, while $reg is named
 # "hires21mm.dat", the matrix actually maps from the 1 mm (FS conformed) space into the hires space).
-tkregister2 --mov "$mridir"/T1w_hires.nii.gz --targ $mridir/orig.mgz --noedit --regheader --reg $reg
+tkregister2_cmdl --mov "$mridir"/T1w_hires.nii.gz --targ $mridir/orig.mgz --noedit --regheader --reg $reg
 
 # map white to hires coords
 # [Note that Xh.sphere.reg doesn't exist yet, which is the default surface registration
@@ -149,7 +149,7 @@ if [ ! "${T2wImage}" = "NONE" ] || [ ! "${T2wImage}" = ""] ; then
 
   if [ ! -e "$mridir"/transforms/T2wtoT1w.mat ] ; then
     bbregister --s "$SubjectID" --mov "$T2wImage" --surf white.deformed --init-reg "$mridir"/transforms/eye.dat --t2 --reg "$mridir"/transforms/T2wtoT1w.dat --o "$mridir"/T2w_hires.nii.gz
-    tkregister2 --noedit --reg "$mridir"/transforms/T2wtoT1w.dat --mov "$T2wImage" --targ "$mridir"/T1w_hires.nii.gz --fslregout "$mridir"/transforms/T2wtoT1w.mat
+    tkregister2_cmdl --noedit --reg "$mridir"/transforms/T2wtoT1w.dat --mov "$T2wImage" --targ "$mridir"/T1w_hires.nii.gz --fslregout "$mridir"/transforms/T2wtoT1w.mat
     applywarp --interp=spline -i "$T2wImage" -r "$mridir"/T1w_hires.nii.gz --premat="$mridir"/transforms/T2wtoT1w.mat -o "$mridir"/T2w_hires.nii.gz
     fslmaths "$mridir"/T2w_hires.nii.gz -abs -add 1 "$mridir"/T2w_hires.nii.gz
     fslmaths "$mridir"/T1w_hires.nii.gz -mul "$mridir"/T2w_hires.nii.gz -sqrt "$mridir"/T1wMulT2w_hires.nii.gz
@@ -164,7 +164,7 @@ fi
 
 
 # Create version of white surfaces back in the 1mm (FS conformed) space
-tkregister2 --mov $mridir/orig.mgz --targ "$mridir"/T1w_hires.nii.gz --noedit --regheader --reg $regII
+tkregister2_cmdl --mov $mridir/orig.mgz --targ "$mridir"/T1w_hires.nii.gz --noedit --regheader --reg $regII
 mri_surf2surf --s $SubjectID --sval-xyz white.deformed --reg $regII $mridir/orig.mgz --tval-xyz --tval white --surfreg white --hemi lh
 mri_surf2surf --s $SubjectID --sval-xyz white.deformed --reg $regII $mridir/orig.mgz --tval-xyz --tval white --surfreg white --hemi rh
 
