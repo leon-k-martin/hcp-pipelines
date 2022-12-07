@@ -1,5 +1,4 @@
 #!/bin/bash
-
 #~ND~FORMAT~MARKDOWN~
 #~ND~START~
 #
@@ -126,7 +125,7 @@ main()
 	get_batch_options "$@"
 
 	# Set variable value that sets up environment
-	EnvironmentScript="${HOME}/work_data/ImageProcessing/HCPpipelines/Examples/Scripts/SetUpHCPPipeline_Custom.sh" # Pipeline environment script
+	EnvironmentScript="${$HCPPIPEDIR}/Examples/Scripts/SetUpHCPPipeline_Custom.sh" # Pipeline environment script
 
 	# Use any command line specified options to override any of the variable settings above
 	if [ -n "${command_line_specified_study_folder}" ]; then
@@ -208,26 +207,48 @@ main()
 		# T1w images
 		T1wInputImages=""
 		numT1ws=0
-		for folder in "${StudyFolder}/${Subject}/unprocessed/3T"/T1w_MPR?; do
-			folderbase=$(basename "$folder")
-			T1wInputImages+="$folder/${Subject}_3T_$folderbase.nii.gz@"
-			numT1ws=$((numT1ws + 1))
-		done
-		echo "Found ${numT1ws} T1w Images for subject ${Subject}"
 
-		# Detect Number of T2w Images and build list of full paths to
-		# T2w images
 		T2wInputImages=""
 		numT2ws=0
-		for folder in "${StudyFolder}/${Subject}/unprocessed/3T"/T2w_SPC?; do
-			folderbase=$(basename "$folder")
-			T2wInputImages+="$folder/${Subject}_3T_$folderbase.nii.gz@"
-			numT1ws=$((numT2ws + 1))
+
+		for file in "${StudyFolder}"/sub-${Subject}/anat/*; do
+			filebase=$(basename "$file")
+			# T1w Images
+			if [[ "$filebase" == *"T1w.nii"* ]];then
+    			T1wInputImages+="$file@"
+				numT1ws=$((numT1ws + 1))
+  			fi
+			# T2w Images
+			if [[ "$filebase" == *"T2w.nii"* ]];then
+    			T2wInputImages+="$file@"
+				numT2ws=$((numT2ws + 1))
+  			fi
+
 		done
+		echo "Found ${numT1ws} T1w Images for subject ${Subject}"
 		echo "Found ${numT2ws} T2w Images for subject ${Subject}"
 
 		# Readout Distortion Correction:
 		#
+
+		for file in "${StudyFolder}"/sub-${Subject}/fmap/*; do
+			filebase=$(basename "$file")
+			if [[ "$filebase" == *"magnitude1.nii"* ]];then
+    			mag1="$file"
+  			fi
+
+			if [[ "$filebase" == *"magnitude2.nii"* ]];then
+    			mag3="$file"
+  			fi
+
+			if [[ "$filebase" == *"phasediff.nii"* ]];then
+				phasediff="$file"
+  			fi
+
+		done
+
+		magnitude="${mag1/magnitude1/magnitude1+2}"
+		mri_concat --i "$mag1" --i "$mag2" --o "$magnitude"
 		#   Currently supported Averaging and readout distortion correction
 		#   methods: (i.e. supported values for the AvgrdcSTRING variable in this
 		#   script and the --avgrdcmethod= command line option for the
@@ -273,11 +294,11 @@ main()
 
 		# The MagnitudeInputName variable should be set to a 4D magitude volume
 		# with two 3D timepoints or "NONE" if not used
-		MagnitudeInputName="${StudyFolder}/${Subject}/unprocessed/3T/T1w_MPR1/${Subject}_3T_FieldMap_Magnitude.nii.gz"
+		MagnitudeInputName="${magnitude}"
 
 		# The PhaseInputName variable should be set to a 3D phase difference
 		# volume or "NONE" if not used
-		PhaseInputName="${StudyFolder}/${Subject}/unprocessed/3T/T1w_MPR1/${Subject}_3T_FieldMap_Phase.nii.gz"
+		PhaseInputName="${phasediff}"
 
 		# The TE variable should be set to 2.46ms for 3T scanner, 1.02ms for 7T
 		# scanner or "NONE" if not using
@@ -407,13 +428,13 @@ main()
 		# Connectom Scanner
 
 		# DICOM field (0019,1018) in s or "NONE" if not used
-		T1wSampleSpacing="0.0000074"
+		T1wSampleSpacing="NONE"
 
 		# DICOM field (0019,1018) in s or "NONE" if not used
-		T2wSampleSpacing="0.0000021"
+		T2wSampleSpacing="NONE"
 
 		# z appears to be the appropriate polarity for the 3D structurals collected on Siemens scanners
-		UnwarpDir="z"
+		UnwarpDir="NONE"
 
 		# Other Config Settings
 

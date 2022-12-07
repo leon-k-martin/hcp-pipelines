@@ -1,17 +1,17 @@
-#!/bin/bash 
+#!/bin/bash
 
 DEFAULT_STUDY_FOLDER="${HOME}/data/7T_Testing"
 DEFAULT_SUBJ_LIST="132118"
 DEFAULT_RUN_LOCAL="FALSE"
-DEFAULT_ENVIRONMENT_SCRIPT="${HOME}/projects/Pipelines/Examples/Scripts/SetUpHCPPipeline.sh"
+DEFAULT_ENVIRONMENT_SCRIPT="${$HCPPIPEDIR}/Examples/Scripts/SetUpHCPPipeline_Custom.sh"
 
-# 
+#
 # Function: get_batch_options
 # Description:
-#  Retrieve the --StudyFolder=, --Subjlist=, --EnvironmentScript=, and 
-#  --runlocal or --RunLocal parameter values if they are specified.  
+#  Retrieve the --StudyFolder=, --Subjlist=, --EnvironmentScript=, and
+#  --runlocal or --RunLocal parameter values if they are specified.
 #
-#  Sets the values of the global variables: StudyFolder, Subjlist, 
+#  Sets the values of the global variables: StudyFolder, Subjlist,
 #  EnvironmentScript, and RunLocal
 #
 #  Default values are used for these variables if the command line options
@@ -49,7 +49,7 @@ get_batch_options()
 	while [ ${index} -lt ${numArgs} ]
 	do
 		argument=${arguments[index]}
-		
+
 		case ${argument} in
 			--StudyFolder=*)
 				StudyFolder=${argument#*=}
@@ -129,23 +129,23 @@ TaskList+=(tfMRI_RETEXP_AP)
 
 for Subject in $Subjlist
 do
-	
+
 	echo "${SCRIPT_NAME}: Processing Subject: ${Subject}"
-	
+
 	for fMRIName in "${TaskList[@]}"
 	do
 		echo "  ${SCRIPT_NAME}: Processing Scan: ${fMRIName}"
 
 		TaskName=`echo ${fMRIName} | sed 's/_[APLR]\+$//'`
 		echo "  ${SCRIPT_NAME}: TaskName: ${TaskName}"
-		
+
 		len=${#fMRIName}
 		echo "  ${SCRIPT_NAME}: len: $len"
 		start=$(( len - 2 ))
-		
+
 		PhaseEncodingDir=${fMRIName:start:2}
 		echo "  ${SCRIPT_NAME}: PhaseEncodingDir: ${PhaseEncodingDir}"
-		
+
 		case ${PhaseEncodingDir} in
 			"PA")
 				UnwarpDir="y"
@@ -163,17 +163,17 @@ do
 				echo "${SCRIPT_NAME}: Unrecognized Phase Encoding Direction: ${PhaseEncodingDir}"
 				exit 1
 		esac
-		
+
 		echo "  ${SCRIPT_NAME}: UnwarpDir: ${UnwarpDir}"
-		
+
 		SubjectUnprocessedRootDir="${StudyFolder}/${Subject}/unprocessed/7T/${fMRIName}"
-		
+
 		fMRITimeSeries="${SubjectUnprocessedRootDir}/${Subject}_7T_${fMRIName}.nii.gz"
 
 		# A single band reference image (SBRef) is recommended if available
 		# Set to NONE if you want to use the first volume of the timeseries for motion correction
 		fMRISBRef="NONE"
-		
+
 		# "Effective" Echo Spacing of fMRI image (specified in *sec* for the fMRI processing)
 		# EchoSpacing = 1/(BWPPPE * ReconMatrixPE)
 		#   where BWPPPE is the "BandwidthPerPixelPhaseEncode" = DICOM field (0019,1028) for Siemens, and
@@ -185,7 +185,7 @@ do
 		# Susceptibility distortion correction method (required for accurate processing)
 		# Values: TOPUP, SiemensFieldMap (same as FIELDMAP), GeneralElectricFieldMap
 		DistortionCorrection="TOPUP"
-		
+
 		# Receive coil bias field correction method
 		# Values: NONE, LEGACY, or SEBASED
 		#   SEBASED calculates bias field from spin echo images (which requires TOPUP distortion correction)
@@ -196,38 +196,38 @@ do
 		# (LR in HCP-YA data; AP in 7T HCP-YA and HCP-D/A data)
 		# Set to NONE if using regular FIELDMAP
 		SpinEchoPhaseEncodeNegative="${SubjectUnprocessedRootDir}/${Subject}_7T_SpinEchoFieldMap_AP.nii.gz"
-		
+
 		# For the spin echo field map volume with a 'positive' phase encoding direction
 		# (RL in HCP-YA data; PA in 7T HCP-YA and HCP-D/A data)
 		# Set to NONE if using regular FIELDMAP
 		SpinEchoPhaseEncodePositive="${SubjectUnprocessedRootDir}/${Subject}_7T_SpinEchoFieldMap_PA.nii.gz"
-		
+
 		# Topup configuration file (if using TOPUP)
 		# Set to NONE if using regular FIELDMAP
 		TopUpConfig="${HCPPIPEDIR_Config}/b02b0.cnf"
-		
+
 		# Not using Siemens Gradient Echo Field Maps for susceptibility distortion correction
 		# Set following to NONE if using TOPUP
 		MagnitudeInputName="NONE" #Expects 4D Magnitude volume with two 3D volumes (differing echo times)
 		PhaseInputName="NONE" #Expects a 3D Phase difference volume (Siemen's style)
 		DeltaTE="NONE" #2.46ms for 3T, 1.02ms for 7T
-		
+
 		# Not using General Electric Gradient Echo Field Maps for Distortion Correction
 		GEB0InputName="NONE"
-		
+
 		FinalFMRIResolution="1.60"
 		dof_epi2t1=12
-		
+
 		# Skipping Gradient Distortion Correction
 		GradientDistortionCoeffs="NONE"
-		
+
 		# Use mcflirt motion correction
 		MCType="MCFLIRT"
-		
+
 		# Determine output name for the fMRI
 		output_fMRIName="${TaskName}_7T_${PhaseEncodingDir}"
 		echo "  ${SCRIPT_NAME}: output_fMRIName: ${output_fMRIName}"
-		
+
 		if [[ "$RunLocal" == "TRUE" || "$QUEUE" == "" ]]
 		then
 			echo "  ${SCRIPT_NAME}: About to locally run ${HCPPIPEDIR}/fMRIVolume/GenericfMRIVolumeProcessingPipeline.sh"
@@ -236,7 +236,7 @@ do
 			echo "  ${SCRIPT_NAME}: About to use fsl_sub to queue ${HCPPIPEDIR}/fMRIVolume/GenericfMRIVolumeProcessingPipeline.sh"
 			queuing_command=("${FSLDIR}/bin/fsl_sub" -q "$QUEUE")
 		fi
-		
+
 		"${queuing_command[@]}" "$HCPPIPEDIR"/fMRIVolume/GenericfMRIVolumeProcessingPipeline.sh \
 			--path="$StudyFolder" \
 			--subject="$Subject" \
@@ -259,5 +259,5 @@ do
 			--biascorrection=$BiasCorrection \
 			--mctype="$MCType"
 	done
-	
+
 done

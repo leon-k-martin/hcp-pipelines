@@ -4,7 +4,7 @@
 # Global default values
 DEFAULT_STUDY_FOLDER="${HOME}/data/Pipelines_ExampleData"
 DEFAULT_SUBJECT_LIST="100307 100610"
-DEFAULT_ENVIRONMENT_SCRIPT="${HOME}/projects/Pipelines/Examples/Scripts/SetUpHCPPipeline.sh"
+DEFAULT_ENVIRONMENT_SCRIPT="${$HCPPIPEDIR}/Examples/Scripts/SetUpHCPPipeline_Custom.sh"
 DEFAULT_RUN_LOCAL="FALSE"
 
 #
@@ -12,7 +12,7 @@ DEFAULT_RUN_LOCAL="FALSE"
 #	Get the command line options for this script
 #
 # Global Output Variables
-#	${StudyFolder}			- Path to folder containing all subjects data in subdirectories named 
+#	${StudyFolder}			- Path to folder containing all subjects data in subdirectories named
 #							  for the subject id
 #	${Subjlist}				- Space delimited list of subject IDs
 #	${EnvironmentScript}	- Script to source to setup pipeline environment
@@ -112,14 +112,14 @@ main() {
 	# set list of fMRI on which to run ReApplyFixPipeline, separate MR FIX groups with %, use spaces (or @ like dedrift...) to otherwise separate runs
 	# ReApplyFixPipeline
 	fMRINames="tfMRI_WM_RL@tfMRI_WM_LR@tfMRI_GAMBLING_RL@tfMRI_GAMBLING_LR@tfMRI_MOTOR_RL@tfMRI_MOTOR_LR%tfMRI_LANGUAGE_RL@tfMRI_LANGUAGE_LR@tfMRI_SOCIAL_RL@tfMRI_SOCIAL_LR@tfMRI_RELATIONAL_RL@tfMRI_RELATIONAL_LR@tfMRI_EMOTION_RL@tfMRI_EMOTION_LR"
-  
+
 	# specify the name of concatenated folder
 	# if run Multi-Run specify ConcatNames as null string
 	ConcatNames="tfMRI_WM_GAMBLING_MOTOR_RL_LR@tfMRI_LANGUAGE_SOCIAL_RELATIONAL_EMOTION_RL_LR"
 
 	# set highpass
 	highpass=0
-	
+
 	#NOTE: syntax for QUEUE has changed compared to earlier pipeline releases,
 	#DO NOT include "-q " at the beginning
 	#default to no queue, implying run local
@@ -166,14 +166,14 @@ main() {
 					--motion-regression="$MotionReg" \
 					--delete-intermediates="$DeleteIntermediates"
 				echo "${Subject} ${fMRIName}"
-			
+
 			done
 		else # Multi-Run
-			
+
 			#need arrays to sanity check number of concat groups
 			IFS=' @' read -a concatarray <<< "${ConcatNames}"
 			IFS=% read -a fmriarray <<< "${fMRINames}"
-        	
+
 			if ((${#concatarray[@]} != ${#fmriarray[@]})); then
 				echo "ERROR: number of names in ConcatNames does not match number of fMRINames groups"
 				exit 1
@@ -183,7 +183,7 @@ main() {
 			do
 				ConcatName="${concatarray[$i]}"
 				fMRINamesGroup="${fmriarray[$i]}"
-	  		
+
 				"${queuing_command[@]}" "$HCPPIPEDIR"/ICAFIX/ReApplyFixMultiRunPipeline.sh \
 					--path="$StudyFolder" \
 					--subject="$Subject" \
@@ -195,7 +195,7 @@ main() {
 					--matlab-run-mode="$MatlabMode" \
 					--motion-regression="$MotionReg"
 					echo "${Subject} ${ConcatName}"
-						
+
 			done
 		fi
 

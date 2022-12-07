@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/bash
 
 get_batch_options() {
     local arguments=("$@")
@@ -41,7 +41,7 @@ get_batch_options "$@"
 
 StudyFolder="${HOME}/projects/Pipelines_ExampleData" #Location of Subject folders (named by subjectID)
 Subjlist="100307 100610" #Space delimited list of subject IDs
-EnvironmentScript="${HOME}/projects/Pipelines/Examples/Scripts/SetUpHCPPipeline.sh" #Pipeline environment script
+EnvironmentScript="${$HCPPIPEDIR}/Examples/Scripts/SetUpHCPPipeline_Custom.sh" #Pipeline environment script
 
 if [ -n "${command_line_specified_study_folder}" ]; then
     StudyFolder="${command_line_specified_study_folder}"
@@ -53,7 +53,7 @@ fi
 
 # Requirements for this script
 #  installed versions of: FSL, Connectome Workbench (wb_command)
-#  environment: HCPPIPEDIR, FSLDIR, CARET7DIR 
+#  environment: HCPPIPEDIR, FSLDIR, CARET7DIR
 
 #Set up pipeline environment variables and software
 source "$EnvironmentScript"
@@ -67,7 +67,7 @@ echo "$@"
 QUEUE=""
 #QUEUE="hcp_priority.q"
 
-########################################## INPUTS ########################################## 
+########################################## INPUTS ##########################################
 
 # This script runs on the outputs from ICAFIX
 

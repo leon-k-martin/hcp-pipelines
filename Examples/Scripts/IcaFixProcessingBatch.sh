@@ -3,7 +3,7 @@
 # Global default values
 DEFAULT_STUDY_FOLDER="${HOME}/data/Pipelines_ExampleData"
 DEFAULT_SUBJECT_LIST="100307 100610"
-DEFAULT_ENVIRONMENT_SCRIPT="${HOME}/projects/Pipelines/Examples/Scripts/SetUpHCPPipeline.sh"
+DEFAULT_ENVIRONMENT_SCRIPT="${$HCPPIPEDIR}/Examples/Scripts/SetUpHCPPipeline_Custom.sh"
 DEFAULT_RUN_LOCAL="FALSE"
 #DEFAULT_FIXDIR="${HOME}/tools/fix1.06"  ##OPTIONAL: If not set will use $FSL_FIXDIR specified in EnvironmentScript
 
@@ -12,7 +12,7 @@ DEFAULT_RUN_LOCAL="FALSE"
 #	Get the command line options for this script
 #
 # Global Output Variables
-#	${StudyFolder}			- Path to folder containing all subjects data in subdirectories named 
+#	${StudyFolder}			- Path to folder containing all subjects data in subdirectories named
 #							  for the subject id
 #	${Subjlist}				- Space delimited list of subject IDs
 #	${EnvironmentScript}	- Script to source to setup pipeline environment
@@ -153,19 +153,19 @@ main() {
 	# set whether or not to regress motion parameters (24 regressors)
 	# out of the data as part of FIX (TRUE or FALSE)
 	domot=FALSE
-	
+
 	# set the training data used in multi-run fix mode
 	MRTrainingData=HCP_Style_Single_Multirun_Dedrift.RData
 
 	# set the training data used in single-run fix mode
 	SRTrainingData=HCP_hp2000.RData
-	
+
 	# set FIX threshold (controls sensitivity/specificity tradeoff)
 	FixThreshold=10
-	
+
 	#delete highpass files (note that delete intermediates=TRUE is not recommended for MR+FIX)
 	DeleteIntermediates=FALSE
-	
+
 	#NOTE: syntax for QUEUE has changed compared to earlier pipeline releases,
 	#DO NOT include "-q " at the beginning
 	#default to no queue, implying run local
@@ -181,13 +181,13 @@ main() {
 		echo ${Subject}
 
 		ResultsFolder="${StudyFolder}/${Subject}/MNINonLinear/Results"
-		
+
 		if [ -z "${ConcatNames}" ]; then
 			# single-run FIX
 			FixScript=${HCPPIPEDIR}/ICAFIX/hcp_fix
-			
+
 			fMRINamesFlat=$(echo ${fMRINames} | sed 's/[@%]/ /g')
-			
+
 			for fMRIName in ${fMRINamesFlat}; do
 				echo "  ${fMRIName}"
 
@@ -202,7 +202,7 @@ main() {
         	#need arrays to sanity check number of concat groups
         	IFS=' @' read -a concatarray <<< "${ConcatNames}"
         	IFS=% read -a fmriarray <<< "${fMRINames}"
-        	
+
         	if ((${#concatarray[@]} != ${#fmriarray[@]})); then
         	    echo "ERROR: number of names in ConcatNames does not match number of fMRINames groups"
         	    exit 1

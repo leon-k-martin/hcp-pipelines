@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/bash
 
 get_batch_options() {
     local arguments=("$@")
@@ -41,7 +41,7 @@ get_batch_options "$@"
 
 StudyFolder="${HOME}/projects/Pipelines_ExampleData" #Location of Subject folders (named by subjectID)
 Subjlist="100307" #Space delimited list of subject IDs
-EnvironmentScript="${HOME}/projects/Pipelines/Examples/Scripts/SetUpHCPPipeline.sh" #Pipeline environment script
+EnvironmentScript="${$HCPPIPEDIR}/Examples/Scripts/SetUpHCPPipeline_Custom.sh" #Pipeline environment script
 
 if [ -n "${command_line_specified_study_folder}" ]; then
     StudyFolder="${command_line_specified_study_folder}"
@@ -67,7 +67,7 @@ echo "$@"
 QUEUE=""
 #QUEUE="hcp_priority.q"
 
-########################################## INPUTS ########################################## 
+########################################## INPUTS ##########################################
 
 #Scripts called by this script do assume they run on the outputs of the FreeSurfer Pipeline
 
@@ -87,7 +87,7 @@ for Subject in $Subjlist ; do
   FreeSurferLabels="${HCPPIPEDIR_Config}/FreeSurferAllLut.txt"
   ReferenceMyelinMaps="${HCPPIPEDIR_Templates}/standard_mesh_atlases/Conte69.MyelinMap_BC.164k_fs_LR.dscalar.nii"
   # RegName="MSMSulc" #MSMSulc is recommended, if binary is not available use FS (FreeSurfer)
-  RegName="FS" 
+  RegName="FS"
 
   if [[ "${command_line_specified_run_local}" == "TRUE" || "$QUEUE" == "" ]] ; then
       echo "About to locally run ${HCPPIPEDIR}/PostFreeSurfer/PostFreeSurferPipeline_1res.sh"
@@ -111,7 +111,7 @@ for Subject in $Subjlist ; do
       --regname="$RegName"
 
   # The following lines are used for interactive debugging to set the positional parameters: $1 $2 $3 ...
-  
+
    echo "set -- --path='$StudyFolder' \
       --subject='$Subject' \
       --surfatlasdir='$SurfaceAtlasDIR' \
@@ -123,7 +123,7 @@ for Subject in $Subjlist ; do
       --freesurferlabels='$FreeSurferLabels' \
       --refmyelinmaps='$ReferenceMyelinMaps' \
       --regname='$RegName'"
-      
+
    echo ". '${EnvironmentScript}'"
 done
 

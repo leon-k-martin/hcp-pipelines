@@ -3,7 +3,7 @@
 # Global default values
 DEFAULT_STUDY_FOLDER="${HOME}/data/7T_Testing"
 DEFAULT_SUBJECT_LIST="100307"
-DEFAULT_ENVIRONMENT_SCRIPT="${HOME}/projects/Pipelines/Examples/Scripts/SetUpHCPPipeline.sh"
+DEFAULT_ENVIRONMENT_SCRIPT="${$HCPPIPEDIR}/Examples/Scripts/SetUpHCPPipeline_Custom.sh"
 DEFAULT_RUN_LOCAL="FALSE"
 DEFAULT_FIX_DIR="${HOME}/tools/fix1.06"
 
@@ -12,7 +12,7 @@ DEFAULT_FIX_DIR="${HOME}/tools/fix1.06"
 #	Get the command line options for this script
 #
 # Global Output Variables
-#	${StudyFolder}			- Path to folder containing all subjects data in subdirectories named 
+#	${StudyFolder}			- Path to folder containing all subjects data in subdirectories named
 #							  for the subject id
 #	${Subjlist}				- Space delimited list of subject IDs
 #	${EnvironmentScript}	- Script to source to setup pipeline environment
@@ -149,12 +149,12 @@ main() {
 		for fmri in "${fmriList[@]}"
 		do
 			echo "  ${fmri}"
-			
+
 			InputDir="${StudyFolder}/${Subject}/MNINonLinear/Results/${fmri}"
 			InputFile="${InputDir}/${fmri}.nii.gz"
 
 			bandpass=2000
-			
+
 			if [[ "$RunLocal" == "TRUE" || "$QUEUE" == "" ]]
 			then
 				echo "About to locally run ${FixScript} ${InputFile} ${bandpass} ${TrainingData}"

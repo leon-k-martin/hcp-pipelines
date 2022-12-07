@@ -43,7 +43,7 @@ get_batch_options() {
 
 get_batch_options "$@"
 
-EnvironmentScript="${HOME}/work_data/ImageProcessing/HCPpipelines/Examples/Scripts/SetUpHCPPipeline_Custom.sh" # Pipeline environment script
+EnvironmentScript="${$HCPPIPEDIR}/Examples/Scripts/SetUpHCPPipeline_Custom.sh" # Pipeline environment script
 
 
 if [ -n "${command_line_specified_study_folder}" ]; then

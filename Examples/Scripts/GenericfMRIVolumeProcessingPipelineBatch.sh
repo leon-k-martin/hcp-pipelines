@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/bash
 
 get_batch_options() {
     local arguments=("$@")
@@ -41,7 +41,7 @@ get_batch_options "$@"
 
 StudyFolder="${HOME}/projects/Pipelines_ExampleData" #Location of Subject folders (named by subjectID)
 Subjlist="100307 100610" #Space delimited list of subject IDs
-EnvironmentScript="${HOME}/projects/Pipelines/Examples/Scripts/SetUpHCPPipeline.sh" #Pipeline environment script
+EnvironmentScript="${$HCPPIPEDIR}/Examples/Scripts/SetUpHCPPipeline_Custom.sh" #Pipeline environment script
 
 if [ -n "${command_line_specified_study_folder}" ]; then
     StudyFolder="${command_line_specified_study_folder}"
@@ -73,7 +73,7 @@ then
 fi
 
 
-########################################## INPUTS ########################################## 
+########################################## INPUTS ##########################################
 
 # Scripts called by this script do NOT assume anything about the form of the input names or paths.
 # This batch script assumes the HCP raw data naming convention.
@@ -155,17 +155,17 @@ for Subject in $Subjlist ; do
 
   for fMRIName in "${TaskList[@]}" ; do
     echo "  ${SCRIPT_NAME}: Processing Scan: ${fMRIName}"
-	  
+
 	TaskName=`echo ${fMRIName} | sed 's/_[APLR]\+$//'`
 	echo "  ${SCRIPT_NAME}: TaskName: ${TaskName}"
 
 	len=${#fMRIName}
 	echo "  ${SCRIPT_NAME}: len: $len"
 	start=$(( len - 2 ))
-		
+
 	PhaseEncodingDir=${fMRIName:start:2}
 	echo "  ${SCRIPT_NAME}: PhaseEncodingDir: ${PhaseEncodingDir}"
-		
+
 	case ${PhaseEncodingDir} in
 	  "PA")
 		UnwarpDir="y"
@@ -183,22 +183,22 @@ for Subject in $Subjlist ; do
 		echo "${SCRIPT_NAME}: Unrecognized Phase Encoding Direction: ${PhaseEncodingDir}"
 		exit 1
 	esac
-	
+
 	echo "  ${SCRIPT_NAME}: UnwarpDir: ${UnwarpDir}"
-		
+
     fMRITimeSeries="${StudyFolder}/${Subject}/unprocessed/3T/${fMRIName}/${Subject}_3T_${fMRIName}.nii.gz"
 
 	# A single band reference image (SBRef) is recommended if available
 	# Set to NONE if you want to use the first volume of the timeseries for motion correction
     fMRISBRef="${StudyFolder}/${Subject}/unprocessed/3T/${fMRIName}/${Subject}_3T_${fMRIName}_SBRef.nii.gz"
-	
+
 	# "Effective" Echo Spacing of fMRI image (specified in *sec* for the fMRI processing)
 	# EchoSpacing = 1/(BWPPPE * ReconMatrixPE)
 	#   where BWPPPE is the "BandwidthPerPixelPhaseEncode" = DICOM field (0019,1028) for Siemens, and
 	#   ReconMatrixPE = size of the reconstructed image in the PE dimension
 	# In-plane acceleration, phase oversampling, phase resolution, phase field-of-view, and interpolation
 	# all potentially need to be accounted for (which they are in Siemen's reported BWPPPE)
-    EchoSpacing="0.00058" 
+    EchoSpacing="0.00058"
 
 	# Susceptibility distortion correction method (required for accurate processing)
 	# Values: TOPUP, SiemensFieldMap (same as FIELDMAP), GeneralElectricFieldMap
@@ -229,14 +229,14 @@ for Subject in $Subjlist ; do
 	MagnitudeInputName="NONE" #Expects 4D Magnitude volume with two 3D volumes (differing echo times)
     PhaseInputName="NONE" #Expects a 3D Phase difference volume (Siemen's style)
     DeltaTE="NONE" #2.46ms for 3T, 1.02ms for 7T
-	
+
     # Path to General Electric style B0 fieldmap with two volumes
     #   1. field map in degrees
     #   2. magnitude
     # Set to "NONE" if not using "GeneralElectricFieldMap" as the value for the DistortionCorrection variable
     #
-    # Example Value: 
-    #  GEB0InputName="${StudyFolder}/${Subject}/unprocessed/3T/${fMRIName}/${Subject}_3T_GradientEchoFieldMap.nii.gz" 
+    # Example Value:
+    #  GEB0InputName="${StudyFolder}/${Subject}/unprocessed/3T/${fMRIName}/${Subject}_3T_GradientEchoFieldMap.nii.gz"
     GEB0InputName="NONE"
 
 	# Target final resolution of fMRI data
@@ -254,7 +254,7 @@ for Subject in $Subjlist ; do
 	# Values: MCFLIRT (default), FLIRT
 	# (3T HCP-YA processing used 'FLIRT', but 'MCFLIRT' now recommended)
     MCType="MCFLIRT"
-		
+
     if [[ "${command_line_specified_run_local}" == "TRUE" || "$QUEUE" == "" ]] ; then
         echo "About to locally run ${HCPPIPEDIR}/fMRIVolume/GenericfMRIVolumeProcessingPipeline.sh"
         #NOTE: fsl_sub without -q runs locally and captures output in files
@@ -308,7 +308,7 @@ for Subject in $Subjlist ; do
       --mctype=$MCType"
 
   echo ". ${EnvironmentScript}"
-	
+
   done
 done
 

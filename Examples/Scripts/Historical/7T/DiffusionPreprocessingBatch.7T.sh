@@ -1,9 +1,9 @@
-#!/bin/bash 
+#!/bin/bash
 
 DEFAULT_STUDY_FOLDER="${HOME}/data/7T_Testing"
 DEFAULT_SUBJ_LIST="102311"
 DEFAULT_RUN_LOCAL="FALSE"
-DEFAULT_ENVIRONMENT_SCRIPT="${HOME}/projects/Pipelines/Examples/Scripts/SetUpHCPPipeline.sh"
+DEFAULT_ENVIRONMENT_SCRIPT="${$HCPPIPEDIR}/Examples/Scripts/SetUpHCPPipeline_Custom.sh"
 
 SCAN_STRENGTH_CODE="7T"
 DIRECTIONS="71 72"
@@ -50,7 +50,7 @@ get_batch_options() {
 
 	while [ ${index} -lt ${numArgs} ]; do
 		argument=${arguments[index]}
-		
+
 		case ${argument} in
 			--StudyFolder=*)
 				StudyFolder=${argument#*=}
@@ -104,7 +104,7 @@ PRINTCOM=""
 SCRIPT_NAME=`basename ${0}`
 echo $SCRIPT_NAME
 
-########################################## INPUTS ########################################## 
+########################################## INPUTS ##########################################
 
 #Scripts called by this script do assume they run on the outputs of the PreFreeSurfer Pipeline,
 #which is a prerequisite for this pipeline
@@ -136,10 +136,10 @@ for Subject in $Subjlist ; do
 	SubjectID="${Subject}" #Subject ID Name
 	RawDataDir="${StudyFolder}/${SubjectID}/unprocessed/${SCAN_STRENGTH_CODE}/Diffusion" # Folder where unprocessed diffusion data are
 
-	# PosData is a list of files (separated by ‘@‘ symbol) having the same phase encoding (PE) direction 
+	# PosData is a list of files (separated by ‘@‘ symbol) having the same phase encoding (PE) direction
 	# and polarity. Similarly for NegData, which must have the opposite PE polarity of PosData.
 	# The PosData files will come first in the merged data file that forms the input to ‘eddy’.
-	# The particular PE polarity assigned to PosData/NegData is not relevant; the distortion and eddy 
+	# The particular PE polarity assigned to PosData/NegData is not relevant; the distortion and eddy
 	# current correction will be accurate either way.
 	#
 	# NOTE that PosData defines the reference space in 'topup' and 'eddy' AND it is assumed that
@@ -157,7 +157,7 @@ for Subject in $Subjlist ; do
 	# propagated to the final output, *and* these pairs will be averaged to yield a single
 	# volume per pair. This reduces file size by 2x (and thence speeds subsequent processing) and
 	# avoids having volumes with different SNR features/ residual distortions.
-	# [This behavior can be changed through the hard-coded 'CombineDataFlag' variable in the 
+	# [This behavior can be changed through the hard-coded 'CombineDataFlag' variable in the
 	# DiffPreprocPipeline_PostEddy.sh script if necessary].
 
 	PosData=""
