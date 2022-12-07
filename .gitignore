@@ -8,9 +8,16 @@
 *.*~
 
 # Ignore gradient coefficients files
-# These are sometimes proprietary and should not be 
+# These are sometimes proprietary and should not be
 # checked in to a repository.
 *.grad
 
 # nfs temporaries
 .nfs*
+.DS_Store
+
+# HCP logs
+PreFreeSurferPipeline.sh.*
+FreeSurferPipeline.sh.*
+PostFreeSurferPipeline.sh.*
+
