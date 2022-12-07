@@ -125,12 +125,8 @@ main()
 {
 	get_batch_options "$@"
 
-	# Set variable values that locate and specify data to process
-	StudyFolder="${HOME}/projects/Pipelines_ExampleData" # Location of Subject folders (named by subjectID)
-	Subjlist="100307 100610"                             # Space delimited list of subject IDs
-
 	# Set variable value that sets up environment
-	EnvironmentScript="${HOME}/projects/Pipelines/Examples/Scripts/SetUpHCPPipeline.sh" # Pipeline environment script
+	EnvironmentScript="${HOME}/work_data/ImageProcessing/HCPpipelines/Examples/Scripts/SetUpHCPPipeline_Custom.sh" # Pipeline environment script
 
 	# Use any command line specified options to override any of the variable settings above
 	if [ -n "${command_line_specified_study_folder}" ]; then
