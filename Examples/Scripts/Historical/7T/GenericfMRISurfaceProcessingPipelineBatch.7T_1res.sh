@@ -3,7 +3,7 @@
 DEFAULT_STUDY_FOLDER="${HOME}/data/7T_Testing"
 DEFAULT_SUBJ_LIST="102311"
 DEFAULT_RUN_LOCAL="FALSE"
-DEFAULT_ENVIRONMENT_SCRIPT="${$HCPPIPEDIR}/Examples/Scripts/SetUpHCPPipeline_Custom.sh"
+DEFAULT_ENVIRONMENT_SCRIPT="${HCPPIPEDIR}/Examples/Scripts/SetUpHCPPipeline_Custom.sh"
 
 #
 # Function: get_batch_options

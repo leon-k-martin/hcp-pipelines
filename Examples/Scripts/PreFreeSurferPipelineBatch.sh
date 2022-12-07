@@ -125,7 +125,7 @@ main()
 	get_batch_options "$@"
 
 	# Set variable value that sets up environment
-	EnvironmentScript="${$HCPPIPEDIR}/Examples/Scripts/SetUpHCPPipeline_Custom.sh" # Pipeline environment script
+	EnvironmentScript="${HCPPIPEDIR}/Examples/Scripts/SetUpHCPPipeline_Custom.sh" # Pipeline environment script
 
 	# Use any command line specified options to override any of the variable settings above
 	if [ -n "${command_line_specified_study_folder}" ]; then

@@ -59,7 +59,7 @@ Subjlist="100206 100307 100408" #Space delimited list of subject IDs
 #RegName="NONE"
 RegName="MSMAll"
 
-EnvironmentScript="${$HCPPIPEDIR}/Examples/Scripts/SetUpHCPPipeline_Custom.sh" #Pipeline environment script
+EnvironmentScript="${HCPPIPEDIR}/Examples/Scripts/SetUpHCPPipeline_Custom.sh" #Pipeline environment script
 
 # Set script variables if specified at the command line
 if [ -n "${command_line_specified_study_folder}" ]; then
