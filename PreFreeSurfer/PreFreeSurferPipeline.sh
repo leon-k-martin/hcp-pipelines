@@ -177,8 +177,8 @@ Usage: ${script_name} [options]
   --t1=<T1w images>                   An @ symbol separated list of full paths to T1-weighted
                                       (T1w) structural images for the subject (required)
   --t2=<T2w images>                   An @ symbol separated list of full paths to T2-weighted
-                                      (T2w) structural images for the subject (required for 
-                                      hcp-style data, can be NONE for legacy-style data, 
+                                      (T2w) structural images for the subject (required for
+                                      hcp-style data, can be NONE for legacy-style data,
                                       see --processing-mode option)
   --t1template=<file path>            MNI T1w template
   --t1templatebrain=<file path>       Brain extracted MNI T1wTemplate
@@ -209,16 +209,16 @@ Usage: ${script_name} [options]
   --seechospacing=<seconds>           Effective Echo Spacing of Spin Echo Field Map,
                                       (in seconds) or "NONE" if not used
   --seunwarpdir={x,y,NONE}            Phase encoding direction (according to the *voxel* axes)
-             or={i,j,NONE}            of the spin echo field map. 
+             or={i,j,NONE}            of the spin echo field map.
                                       (Only applies when using a spin echo field map.)
   --t1samplespacing=<seconds>         T1 image sample spacing, "NONE" if not used
   --t2samplespacing=<seconds>         T2 image sample spacing, "NONE" if not used
   --unwarpdir={x,y,z,x-,y-,z-}        Readout direction of the T1w and T2w images (according to the *voxel axes)
-           or={i,j,k,i-,j-,k-}        (Used with either a gradient echo field map 
+           or={i,j,k,i-,j-,k-}        (Used with either a gradient echo field map
                                       or a spin echo field map)
   --gdcoeffs=<file path>              File containing gradient distortion
                                       coefficients, Set to "NONE" to turn off
-  --avgrdcmethod=<avgrdcmethod>       Averaging and readout distortion correction method. 
+  --avgrdcmethod=<avgrdcmethod>       Averaging and readout distortion correction method.
                                       See below for supported values.
 
       "${NONE_METHOD_OPT}"
@@ -247,25 +247,25 @@ Usage: ${script_name} [options]
   --topupconfig=<file path>           Configuration file for topup or "NONE" if not used
   [--bfsigma=<value>]                 Bias Field Smoothing Sigma (optional)
   [--custombrain=(NONE|MASK|CUSTOM)]  If PreFreeSurfer has been run before and you have created a custom
-                                      brain mask saved as "<subject>/T1w/custom_acpc_dc_restore_mask.nii.gz", specify "MASK". 
-                                      If PreFreeSurfer has been run before and you have created custom structural images, e.g.: 
+                                      brain mask saved as "<subject>/T1w/custom_acpc_dc_restore_mask.nii.gz", specify "MASK".
+                                      If PreFreeSurfer has been run before and you have created custom structural images, e.g.:
                                       - "<subject>/T1w/T1w_acpc_dc_restore_brain.nii.gz"
                                       - "<subject>/T1w/T1w_acpc_dc_restore.nii.gz"
                                       - "<subject>/T1w/T2w_acpc_dc_restore_brain.nii.gz"
                                       - "<subject>/T1w/T2w_acpc_dc_restore.nii.gz"
                                       to be used when peforming MNI152 Atlas registration, specify "CUSTOM".
                                       When "MASK" or "CUSTOM" is specified, only the AtlasRegistration step is run.
-                                      If the parameter is omitted or set to NONE (the default), 
+                                      If the parameter is omitted or set to NONE (the default),
                                       standard image processing will take place.
-                                      If using "MASK" or "CUSTOM", the data still needs to be staged properly by 
+                                      If using "MASK" or "CUSTOM", the data still needs to be staged properly by
                                       running FreeSurfer and PostFreeSurfer afterwards.
                                       NOTE: This option allows manual correction of brain images in cases when they
                                       were not successfully processed and/or masked by the regular use of the pipelines.
-                                      Before using this option, first ensure that the pipeline arguments used were 
+                                      Before using this option, first ensure that the pipeline arguments used were
                                       correct and that templates are a good match to the data.
   [--processing-mode=(HCPStyleData|   Controls whether the HCP acquisition and processing guidelines should be treated as requirements.
-               LegacyStyleData)]      "HCPStyleData" (the default) follows the processing steps described in Glasser et al. (2013) 
-                                         and requires 'HCP-Style' data acquistion. 
+               LegacyStyleData)]      "HCPStyleData" (the default) follows the processing steps described in Glasser et al. (2013)
+                                         and requires 'HCP-Style' data acquistion.
                                       "LegacyStyleData" allows additional processing functionality and use of some acquisitions
                                          that do not conform to 'HCP-Style' expectations.
                                          In this script, it allows not having a high-resolution T2w image.
@@ -352,8 +352,8 @@ BiasFieldSmoothingSigma=`opts_GetOpt1 "--bfsigma" $@`
 CustomBrain=`opts_GetOpt1 "--custombrain" $@`
 ProcessingMode=`opts_GetOpt1 "--processing-mode" $@`
 
-# NOTE: UseJacobian only affects whether the spin echo field maps 
-# get intensity modulated by the gradient distortion correction warpfield 
+# NOTE: UseJacobian only affects whether the spin echo field maps
+# get intensity modulated by the gradient distortion correction warpfield
 # (T2wToT1wDistortionCorrectAndReg -> TopupPreprocessingAll)
 UseJacobian=`opts_GetOpt1 "--usejacobian" $@`
 # Convert UseJacobian value to all lowercase (to allow the user the flexibility to use True, true, TRUE, False, False, false, etc.)
@@ -492,7 +492,7 @@ log_Msg "POSIXLY_CORRECT="${POSIXLY_CORRECT}
 #  - Perform Brain Extraction(FNIRT-based Masking)
 # ------------------------------------------------------------------------------
 
-# NOTE: We skip all the way to AtlasRegistration (last step) if using a custom 
+# NOTE: We skip all the way to AtlasRegistration (last step) if using a custom
 # brain mask or custom structural images ($CustomBrain={MASK|CUSTOM})
 
 if [ "$CustomBrain" = "NONE" ] ; then
@@ -651,7 +651,7 @@ if [ "$CustomBrain" = "NONE" ] ; then
         --method=${AvgrdcSTRING} \
         --topupconfig=${TopupConfig} \
         --gdcoeffs=${GradientDistortionCoeffs} \
-        --usejacobian=${UseJacobian} 
+        --usejacobian=${UseJacobian}
 
       ;;
 
@@ -679,7 +679,7 @@ if [ "$CustomBrain" = "NONE" ] ; then
         ${T1wFolder}/${T1wImage}_acpc_dc_brain \
         ${T1wFolder}/xfms/${T1wImage}_dc \
         ${T1wFolder}/${T2wImage}_acpc_dc \
-        ${T1wFolder}/xfms/${T2wImage}_reg_dc 
+        ${T1wFolder}/xfms/${T2wImage}_reg_dc
 
   esac
 
@@ -695,7 +695,7 @@ if [ "$CustomBrain" = "NONE" ] ; then
 
   if [ ! "${T2wInputImages}" = "NONE" ] ; then
 
-    log_Msg "Performing Bias Field Correction using sqrt(T1w x T2w)"    
+    log_Msg "Performing Bias Field Correction using sqrt(T1w x T2w)"
     log_Msg "mkdir -p ${T1wFolder}/BiasFieldCorrection_sqrtT1wXT2w"
 
     mkdir -p ${T1wFolder}/BiasFieldCorrection_sqrtT1wXT2w
@@ -796,8 +796,8 @@ fi  # --- skipped all the way to here if using customized structural images (--c
 # i.e., whether the T1w/T1w_acpc_dc* volumes reflect the PreFreeSurferPipeline versions (above)
 # or the PostFreeSurferPipeline versions.
 # Make sure that you rerun FreeSurfer and PostFreeSurfer if using --custombrain={CUSTOM|MASK}
-# or if otherwise simply re-running PreFreeSurfer on top of existing data [which is not advised; 
-# in the --custombrain=NONE condition, the recommendation would be to simply delete the existing data, 
+# or if otherwise simply re-running PreFreeSurfer on top of existing data [which is not advised;
+# in the --custombrain=NONE condition, the recommendation would be to simply delete the existing data,
 # and run PreFreeSurfer (and then FreeSurfer and PostFreeSurfer) de novo].
 
 OutputOrigT1wToT1wPostFS=OrigT1w2T1w  #Needs to match name used in both FreeSurferPipeline and PostFreeSurferPipeline
@@ -835,7 +835,7 @@ ${RUN} ${HCPPIPEDIR_PreFS}/AtlasRegistrationToMNI152_FLIRTandFNIRT.sh \
   --ot2=${AtlasSpaceFolder}/${T2wImage} \
   --ot2rest=${AtlasSpaceFolder}/${T2wImage}_restore \
   --ot2restbrain=${AtlasSpaceFolder}/${T2wImage}_restore_brain \
-  --fnirtconfig=${FNIRTConfig} 
+  --fnirtconfig=${FNIRTConfig}
 
 log_Msg "Completed!"
 
