@@ -34,6 +34,10 @@
 #   are found on the PATH. If all such custom scripts are found, then we do nothing here.
 #   If any one of them is not found on the PATH, then we change the PATH so that the
 #   versions of these scripts found in ${HCPPIPEDIR}/FreeSurfer/custom are used.
+
+export FREESURFER_HOME=/Applications/freesurfer/6
+source ${FREESURFER_HOME}/SetUpFreeSurfer.sh >/dev/null
+
 configure_custom_tools()
 {
 	local which_recon_all
@@ -57,7 +61,7 @@ configure_custom_tools()
 		log_Warn "use can be found on the PATH."
 		log_Warn ""
 		log_Warn "PATH set to: ${PATH}"
-	fi	
+	fi
 }
 
 # Show tool versions
@@ -72,11 +76,11 @@ show_tool_versions()
 	local which_recon_all=$(which recon-all.v6.hires)
 	log_Msg ${which_recon_all}
 	recon-all.v6.hires -version
-	
+
 	# Show tkregister version
 	log_Msg "Showing tkregister version"
 	which tkregister
-	tkregister -version
+	tkregister2 -version
 
 	# Show mri_concatenate_lta version
 	log_Msg "Showing mri_concatenate_lta version"
@@ -98,7 +102,7 @@ validate_freesurfer_version()
 	if [ -z "${FREESURFER_HOME}" ]; then
 		log_Err_Abort "FREESURFER_HOME must be set"
 	fi
-	
+
 	freesurfer_version_file="${FREESURFER_HOME}/build-stamp.txt"
 
 	if [ -f "${freesurfer_version_file}" ]; then
@@ -203,7 +207,7 @@ PARAMETERs are: [ ] = optional; < > = user supplied value
 
   [--no-conf2hires]
       Indicates that the script should NOT include -conf2hires as an argument to recon-all.
-         By default, -conf2hires *IS* included, so that recon-all will place the surfaces on the 
+         By default, -conf2hires *IS* included, so that recon-all will place the surfaces on the
          hires T1 (and T2).
          This is an advanced option, intended for situations where:
             (i) the original T1w and T2w images are NOT "hires" (i.e., they are 1 mm isotropic or worse), or
@@ -212,8 +216,8 @@ PARAMETERs are: [ ] = optional; < > = user supplied value
 
   [--processing-mode=(HCPStyleData|LegacyStyleData)]
       Controls whether the HCP acquisition and processing guidelines should be treated as requirements.
-      "HCPStyleData" (the default) follows the processing steps described in Glasser et al. (2013) 
-         and requires 'HCP-Style' data acquistion. 
+      "HCPStyleData" (the default) follows the processing steps described in Glasser et al. (2013)
+         and requires 'HCP-Style' data acquistion.
       "LegacyStyleData" allows additional processing functionality and use of some acquisitions
          that do not conform to 'HCP-Style' expectations.
          In this script, it allows not having a high-resolution T2w image.
@@ -222,7 +226,7 @@ PARAMETERs can also be specified positionally as:
 
   ${g_script_name} <path to subject directory> <subject ID> <path to T1w image> <path to T1w brain mask> <path to T2w image> [<recon-all seed value>]
 
-  Note that the positional approach to specifying parameters does NOT support the 
+  Note that the positional approach to specifying parameters does NOT support the
       --existing-subject, --extra-reconall-arg, --no-conf2hires, and --processing-mode options.
   The positional approach should be considered deprecated, and may be removed in a future version.
 
@@ -334,8 +338,8 @@ get_options()
 	# ------------------------------------------------------------------------------
 	#  Compliance check
 	# ------------------------------------------------------------------------------
-	
-	ProcessingMode=${p_processing_mode:-HCPStyleData}	
+
+	ProcessingMode=${p_processing_mode:-HCPStyleData}
     Compliance="HCPStyleData"
     ComplianceMsg=""
 
@@ -679,7 +683,7 @@ main()
 	fi
 
 	# By default, refine pial surfaces using T2 (if T2w image provided).
-	# If for some other reason the -T2pial flag needs to be excluded from recon-all, 
+	# If for some other reason the -T2pial flag needs to be excluded from recon-all,
 	# this can be accomplished using --extra-reconall-arg=-noT2pial
 	if [ "${T2wImage}" != "NONE" ]; then
 		if [ "${flair}" = "TRUE" ]; then
@@ -702,7 +706,7 @@ main()
 	if [ "${conf2hires}" = "TRUE" ]; then
 		recon_all_cmd+=" -conf2hires"
 	fi
-	
+
 	log_Msg "...recon_all_cmd: ${recon_all_cmd}"
 	${recon_all_cmd}
 	return_code=$?
@@ -721,6 +725,9 @@ main()
 		fi
 
 	fi
+
+	export FREESURFER_HOME=/Applications/freesurfer/7.2.0
+	source ${FREESURFER_HOME}/SetUpFreeSurfer.sh >/dev/null
 
 	## MPH: Portions of the following are unnecesary in the case of ${existing_subject} = "TRUE"
 	## but rather than identify what is and isn't strictly necessary (which itself may interact
@@ -761,7 +768,7 @@ main()
 		fi
 
 		log_Msg "...Create a registration between the original conformed space and the rawavg space"
-		tkregister_cmd="tkregister"
+		tkregister_cmd="tkregister2"
 		tkregister_cmd+=" --mov orig.mgz"
 		tkregister_cmd+=" --targ rawavg.mgz"
 		tkregister_cmd+=" --regheader"
@@ -769,6 +776,7 @@ main()
 		tkregister_cmd+=" --reg deleteme.dat"
 		tkregister_cmd+=" --ltaout transforms/orig-to-rawavg.lta"
 		tkregister_cmd+=" --s ${SubjectID}"
+		tkregister_cmd+=" --sd ${p_subject_dir}"
 
 		log_Msg "......The following produces deleteme.dat and transforms/orig-to-rawavg.lta"
 		log_Msg "......tkregister_cmd: ${tkregister_cmd}"
@@ -794,7 +802,7 @@ main()
 		fi
 
 		log_Msg "...Convert to FSL format"
-		tkregister_cmd="tkregister"
+		tkregister_cmd="tkregister2"
 		tkregister_cmd+=" --mov orig/${t2_or_flair}raw.mgz"
 		tkregister_cmd+=" --targ rawavg.mgz"
 		tkregister_cmd+=" --reg Q.lta"
@@ -822,31 +830,31 @@ main()
 	# ----------------------------------------------------------------------
 
 	pushd ${mridir}
-	
+
 	export SUBJECTS_DIR="$SubjectDIR"
-	
+
 	reg=$mridir/transforms/orig2rawavg.dat
 	# generate registration between conformed and hires based on headers
-	# Note that the convention of tkregister2 is that the resulting $reg is the registration
-	# matrix that maps from the "--targ" space into the "--mov" space. 
-	
-	tkregister2 --mov ${mridir}/rawavg.mgz --targ ${mridir}/orig.mgz --noedit --regheader --reg $reg
-	
-	#The ?h.white.deformed surfaces are used in FreeSurfer BBR registrations for fMRI and diffusion and have been moved into the HCP's T1w space so that BBR produces a transformation containing only the minor adjustment to the registration.  
+	# Note that the convention of tkregister2_cmdl is that the resulting $reg is the registration
+	# matrix that maps from the "--targ" space into the "--mov" space.
+
+	tkregister2_cmdl --mov ${mridir}/rawavg.mgz --targ ${mridir}/orig.mgz --noedit --regheader --reg $reg
+
+	#The ?h.white.deformed surfaces are used in FreeSurfer BBR registrations for fMRI and diffusion and have been moved into the HCP's T1w space so that BBR produces a transformation containing only the minor adjustment to the registration.
 	mri_surf2surf --s ${SubjectID} --sval-xyz white --reg $reg --tval-xyz ${mridir}/rawavg.mgz --tval white.deformed --surfreg white --hemi lh
 	return_code=$?
 	if [ "${return_code}" != "0" ]; then
 		log_Err_Abort "mri_surf2surf command for left hemisphere failed with return_code: ${return_code}"
 	fi
-	
+
 	mri_surf2surf --s ${SubjectID} --sval-xyz white --reg $reg --tval-xyz ${mridir}/rawavg.mgz --tval white.deformed --surfreg white --hemi rh
 	return_code=$?
 	if [ "${return_code}" != "0" ]; then
 		log_Err_Abort "mri_surf2surf command for right hemisphere failed with return_code: ${return_code}"
 	fi
-	
+
 	popd
-	
+
 	# ----------------------------------------------------------------------
 	log_Msg "Generating QC file"
 	# ----------------------------------------------------------------------
