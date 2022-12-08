@@ -204,13 +204,12 @@ defaultopt() {
 
 ################################################## OPTION PARSING #####################################################
 # default parameters
-RegOutput=`$FSLDIR/bin/remove_ext $RegOutput`
+GlobalScripts=${HCPPIPEDIR_Global}
 WD=`defaultopt $WD ${RegOutput}.wdir`
 dof=`defaultopt $dof 6`
-GlobalScripts=${HCPPIPEDIR_Global}
 TopupConfig=`defaultopt $TopupConfig ${HCPPIPEDIR_Config}/b02b0.cnf`
 QAImage=`defaultopt $QAImage T1wMulEPI`
-PreregisterTool=${PreregisterTool:-epi_reg}
+
 
 # parse arguments
 WD=`getopt1 "--workingdir" $@`
@@ -242,6 +241,10 @@ SubjectFolder=`getopt1 "--subjectfolder" $@`
 BiasCorrection=`getopt1 "--biascorrection" $@`
 UseJacobian=`getopt1 "--usejacobian" $@`
 PreregisterTool=`getopt1 "--preregistertool" $@`
+
+
+RegOutput=$($FSLDIR/bin/remove_ext $RegOutput)
+PreregisterTool=${PreregisterTool:-epi_reg}
 
 if [[ -n $HCPPIPEDEBUG ]]
 then
