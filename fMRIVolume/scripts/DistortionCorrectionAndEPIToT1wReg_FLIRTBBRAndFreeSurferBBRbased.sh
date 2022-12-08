@@ -203,6 +203,14 @@ defaultopt() {
 #       ${RegOutput}  ${OutputTransform}  ${JacobianOut}  ${QAImage}
 
 ################################################## OPTION PARSING #####################################################
+# default parameters
+RegOutput=`$FSLDIR/bin/remove_ext $RegOutput`
+WD=`defaultopt $WD ${RegOutput}.wdir`
+dof=`defaultopt $dof 6`
+GlobalScripts=${HCPPIPEDIR_Global}
+TopupConfig=`defaultopt $TopupConfig ${HCPPIPEDIR_Config}/b02b0.cnf`
+QAImage=`defaultopt $QAImage T1wMulEPI`
+PreregisterTool=${PreregisterTool:-epi_reg}
 
 # parse arguments
 WD=`getopt1 "--workingdir" $@`
@@ -273,15 +281,6 @@ esac
 
 ScoutInputFile=`basename $ScoutInputName`
 T1wBrainImageFile=`basename $T1wBrainImage`
-
-# default parameters
-RegOutput=`$FSLDIR/bin/remove_ext $RegOutput`
-WD=`defaultopt $WD ${RegOutput}.wdir`
-dof=`defaultopt $dof 6`
-GlobalScripts=${HCPPIPEDIR_Global}
-TopupConfig=`defaultopt $TopupConfig ${HCPPIPEDIR_Config}/b02b0.cnf`
-QAImage=`defaultopt $QAImage T1wMulEPI`
-PreregisterTool=${PreregisterTool:-epi_reg}
 
 # Convert UseJacobian value to all lowercase (to allow the user the flexibility to use True, true, TRUE, False, False, false, etc.)
 UseJacobian="$(echo ${UseJacobian} | tr '[:upper:]' '[:lower:]')"
