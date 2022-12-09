@@ -1,11 +1,11 @@
-#!/bin/bash 
+#!/bin/bash
 
 # Requirements for this script
-#  installed versions of: FSL, FreeSurfer, gradunwarp (HCP version) 
+#  installed versions of: FSL, FreeSurfer, gradunwarp (HCP version)
 #  environment: HCPPIPEDIR, FSLDIR, FREESURFER_HOME, HCPPIPEDIR_Global, PATH for gradient_unwarp.py
 
 
-########################################## OUTPUT DIRECTORIES ########################################## 
+########################################## OUTPUT DIRECTORIES ##########################################
 
 # TODO
 
@@ -48,7 +48,7 @@ Usage: ${script_name} [options]
              use bias field derived from spin echo images, must also use --dcmethod="${SPIN_ECHO_METHOD_OPT}"
 
         "LEGACY"
-             use the bias field derived from T1w and T2w images, same as was used in 
+             use the bias field derived from T1w and T2w images, same as was used in
              pipeline version 3.14.1 or older. No longer recommended.
 
         "NONE"
@@ -57,10 +57,10 @@ Usage: ${script_name} [options]
   [--fmriscout=<input "scout" volume>]
 
       Used as the target for motion correction and for BBR registration to the structurals.
-      In HCP-Style acquisitions, the "SBRef" (single-band reference) volume associated with a run is 
+      In HCP-Style acquisitions, the "SBRef" (single-band reference) volume associated with a run is
       typically used as the "scout".
       Default: "NONE" (in which case the first volume of the time-series is extracted and used as the "scout")
-      It must have identical dimensions, voxel resolution, and distortions (i.e., phase-encoding 
+      It must have identical dimensions, voxel resolution, and distortions (i.e., phase-encoding
       polarity and echo-spacing) as the input fMRI time series
 
   [--mctype=<type of motion correction to use: "MCFLIRT" (default) or "FLIRT">]
@@ -93,9 +93,9 @@ Usage: ${script_name} [options]
   Options required for all --dcmethod options except for "${NONE_METHOD_OPT}":
 
     [--echospacing=<*effective* echo spacing of fMRI input, in seconds>]
-    [--unwarpdir=<PE direction for unwarping according to the *voxel* axes: 
+    [--unwarpdir=<PE direction for unwarping according to the *voxel* axes:
        {x,y,z,x-,y-,z-} or {i,j,k,i-,j-,k-}>]
-          Polarity matters!  If your distortions are twice as bad as in the original images, 
+          Polarity matters!  If your distortions are twice as bad as in the original images,
           try using the opposite polarity for --unwarpdir.
 
   Options required if using --dcmethod="${SPIN_ECHO_METHOD_OPT}":
@@ -125,37 +125,37 @@ Usage: ${script_name} [options]
 
   [--usejacobian=<"TRUE" or "FALSE">]
 
-      Controls whether the jacobian of the *distortion corrections* (GDC and SDC) are applied 
-      to the output data.  (The jacobian of the nonlinear T1 to template (MNI152) registration 
-      is NOT applied, regardless of value).  
+      Controls whether the jacobian of the *distortion corrections* (GDC and SDC) are applied
+      to the output data.  (The jacobian of the nonlinear T1 to template (MNI152) registration
+      is NOT applied, regardless of value).
       Default: "TRUE" if using --dcmethod="${SPIN_ECHO_METHOD_OPT}"; "FALSE" for all other SDC methods.
 
   [--processing-mode=<"HCPStyleData" (default) or "LegacyStyleData">
 
       Controls whether the HCP acquisition and processing guidelines should be treated as requirements.
-      "HCPStyleData" (the default) follows the processing steps described in Glasser et al. (2013) 
-        and requires 'HCP-Style' data acquistion. 
+      "HCPStyleData" (the default) follows the processing steps described in Glasser et al. (2013)
+        and requires 'HCP-Style' data acquistion.
       "LegacyStyleData" allows additional processing functionality and use of some acquisitions
-        that do not conform to 'HCP-Style' expectations.  
+        that do not conform to 'HCP-Style' expectations.
 
 
   -------- "LegacyStyleData" MODE OPTIONS --------
 
-   Use --processing-mode-info to see important additional information and warnings about the use of 
+   Use --processing-mode-info to see important additional information and warnings about the use of
    the following options!
 
   [--preregistertool=<"epi_reg" (default) or "flirt">]
 
-      Specifies which software tool to use to preregister the fMRI to T1w image 
+      Specifies which software tool to use to preregister the fMRI to T1w image
       (prior to the final FreeSurfer BBR registration).
-      "epi_reg" is default, whereas "flirt" might give better results with some 
+      "epi_reg" is default, whereas "flirt" might give better results with some
       legacy type data (e.g., single band, low resolution).
 
   [--doslicetime=<"FALSE" (default) or "TRUE">]
 
       Specifies whether slice timing correction should be run on the fMRI input.
-      If set to "TRUE" FSL's 'slicetimer' is run before motion correction. 
-      Please run with --processing-mode-info flag for additional information on the issues 
+      If set to "TRUE" FSL's 'slicetimer' is run before motion correction.
+      Please run with --processing-mode-info flag for additional information on the issues
       relevant for --doslicetime.
 
   [--slicetimerparams=<"@" separated list of slicetimer parameters>]
@@ -163,7 +163,7 @@ Usage: ${script_name} [options]
       Enables passing additional parameters to FSL's 'slicetimer' if --doslicetime="TRUE".
       The parameters to pass should be provided as a "@" separated string, e.g.:
         --slicetimerparams="--odd@--ocustom=<CustomInterleaveFile>"
-      For details about valid parameters please consult FSL's 'slicetimer' documentation. 
+      For details about valid parameters please consult FSL's 'slicetimer' documentation.
 
   [--fmrimask=<type of final mask to use for final fMRI output volume>]
 
@@ -181,19 +181,19 @@ Usage: ${script_name} [options]
       The specified run will be used as a reference for motion correction and its distortion
       correction and atlas (MNI152) registration will be copied over and used. The reference fMRI
       has to have been fully processed using the fMRIVolume pipeline, so that a distortion
-      correction and atlas (MNI152) registration solution for the reference fMRI already exists. 
-      The reference fMRI must have been acquired using the same imaging parameters (e.g., phase 
-      encoding polarity and echo spacing), or it can not serve as a valid reference. (NO checking 
+      correction and atlas (MNI152) registration solution for the reference fMRI already exists.
+      The reference fMRI must have been acquired using the same imaging parameters (e.g., phase
+      encoding polarity and echo spacing), or it can not serve as a valid reference. (NO checking
       is performed to verify this).
       WARNING: This option excludes the use of the --fmriscout option, as the scout from the
-      specified reference fMRI run is used instead. 
-      Please run with --processing-mode-info flag for additional information on the issues related 
+      specified reference fMRI run is used instead.
+      Please run with --processing-mode-info flag for additional information on the issues related
       to the use of --fmriref.
 
   [--fmrirefreg=<"linear" (default) or "nonlinear">]
 
-      Specifies whether to compute and apply a nonlinear transform to align the inputfMRI to the 
-      reference fMRI, if one is specified using --fmriref. The nonlinear transform is computed 
+      Specifies whether to compute and apply a nonlinear transform to align the inputfMRI to the
+      reference fMRI, if one is specified using --fmriref. The nonlinear transform is computed
       using 'fnirt' following the motion correction using the mean motion corrected fMRI image.
 
 EOF
@@ -205,82 +205,82 @@ show_processing_mode_info() {
 Processing mode additional information
 --------------------------------------
 
-HCPpipelines were designed to provide state-of-the-art processing of MR datasets. To achieve 
-optimal results HCPpipelines expects the data to conform to a set of requirements such as the 
-presence of high resolution T1w and T2w images and an appropriate set of images (i.e., field map 
-images) that enable performing susceptibility distortion correction (SDC). In addition 
-HCPpipelines expect the data to be of sufficiently high quality to ensure best results, e.g., 
+HCPpipelines were designed to provide state-of-the-art processing of MR datasets. To achieve
+optimal results HCPpipelines expects the data to conform to a set of requirements such as the
+presence of high resolution T1w and T2w images and an appropriate set of images (i.e., field map
+images) that enable performing susceptibility distortion correction (SDC). In addition
+HCPpipelines expect the data to be of sufficiently high quality to ensure best results, e.g.,
 multiband high-resolution fMRI images with short TR for which slice timing correction is
 not necessary.
 
 Many datasets do not meet the requirements and expectations of HCPpipelines, either because
-they are older and have been acquired using imaging protocols and sequences that are considered 
-outdated (e.g., single-band low-resolution, long TR fMRI images, no high-resolution T2w image), 
+they are older and have been acquired using imaging protocols and sequences that are considered
+outdated (e.g., single-band low-resolution, long TR fMRI images, no high-resolution T2w image),
 or the specifics of the study or the equipment used does not allow optimal data collection.
-In these cases, the HCPpipelines can not ensure the standard of quality enabled by 
-the use of appropriate data -- nonetheless, a need to process these datasets to the best 
-possible extent is acknowledged. 
+In these cases, the HCPpipelines can not ensure the standard of quality enabled by
+the use of appropriate data -- nonetheless, a need to process these datasets to the best
+possible extent is acknowledged.
 
 To enable processing of datasets that do not meet HCPpipelines reqirements and expectations,
-HCPpipelines offers a set of parameters and parameter choices that either extend the 
+HCPpipelines offers a set of parameters and parameter choices that either extend the
 processing options (e.g., enable slice timing correction) or allow processing despite
 missing data, which is required for ensuring optimal results (e.g., no T2w or field map images).
-To clearly distinguish between processing that meets HCPpipelines requirements and 
+To clearly distinguish between processing that meets HCPpipelines requirements and
 expectations and processing of suboptimal data that does not meet HCP standards, these options
 are only enabled when legacy processing mode is explicitly turned on by setting
---processing-mode="LegacyStyleData". 
+--processing-mode="LegacyStyleData".
 
-The following paragraphs describe the specific considerations when using the "LegacyStyleData" 
+The following paragraphs describe the specific considerations when using the "LegacyStyleData"
 processing options associated with ${script_name}.
 
 Slice timing correction:
---doslicetime enables slice timing correction in the cases of fMRI images with longer TR. 
-If turned on, slice timing correction is performed before motion correction and thus implicitly 
+--doslicetime enables slice timing correction in the cases of fMRI images with longer TR.
+If turned on, slice timing correction is performed before motion correction and thus implicitly
 assumes that the brain is motionless. Errors in temporal interpolation will occur in the presence
-of head motion and may also disrupt data quality measures as shown in Power et al (2017, PLOS One, 
-"Temporal interpolation alters motion in fMRI scans: Magnitudes and consequences for artifact 
-detection"). Slice timing correction and motion correction would ideally be performed 
-simultaneously; however, this is not currently supported by any major software tool. HCP-Style 
-fast TR fMRI data acquisitions (TR<=1s) avoid the need for slice timing correction, provide 
-major advantages for fMRI denoising, and are recommended. 
+of head motion and may also disrupt data quality measures as shown in Power et al (2017, PLOS One,
+"Temporal interpolation alters motion in fMRI scans: Magnitudes and consequences for artifact
+detection"). Slice timing correction and motion correction would ideally be performed
+simultaneously; however, this is not currently supported by any major software tool. HCP-Style
+fast TR fMRI data acquisitions (TR<=1s) avoid the need for slice timing correction, provide
+major advantages for fMRI denoising, and are recommended.
 
 Use of expanded fMRI masks:
-As the final step in processing of fMRI data, the data is intensity normalized. This is 
+As the final step in processing of fMRI data, the data is intensity normalized. This is
 optimally done when only the brain voxels are taken into account and the regions outside of
-the brain are masked out. When working with legacy data, e.g., when no field map images are 
-available to support SDC, fMRI data might not be fully contained within the brain mask 
-generated from the T1w image. To identify such issues in quality control or to enable full use 
-of the data in analysis of volume data, the --fmrimask parameter allows widening the T1w mask 
-(T1_DILATED_fMRI_FOV, T1_DILATED2x_fMRI_FOV) or extending the mask to the complete available 
-field of view (fMRI_FOV, i.e., voxels having spatial coverage at all time points). 
+the brain are masked out. When working with legacy data, e.g., when no field map images are
+available to support SDC, fMRI data might not be fully contained within the brain mask
+generated from the T1w image. To identify such issues in quality control or to enable full use
+of the data in analysis of volume data, the --fmrimask parameter allows widening the T1w mask
+(T1_DILATED_fMRI_FOV, T1_DILATED2x_fMRI_FOV) or extending the mask to the complete available
+field of view (fMRI_FOV, i.e., voxels having spatial coverage at all time points).
 Do consider that these options will impact intensity normalization.
 
 Use of a reference fMRI run:
 In the cases of low-resolution fMRI images, registering the input fMRI images directly to
-another fMRI run and using a common SDC and translation to atlas space can lead to better 
-between-run fMRI registration, compared to performing both independently for each fMRI run. 
-This is enabled using the --fmriref parameter. Note that using this parameter requires the 
+another fMRI run and using a common SDC and translation to atlas space can lead to better
+between-run fMRI registration, compared to performing both independently for each fMRI run.
+This is enabled using the --fmriref parameter. Note that using this parameter requires the
 reference fMRI to be acquired using the same parameters (e.g., phase encoding polarity and
-echo spacing) and already processed. Also note that the use of this parameter is 
-incompatible with the use of the --fmriscout parameter as the scout from the reference image 
+echo spacing) and already processed. Also note that the use of this parameter is
+incompatible with the use of the --fmriscout parameter as the scout from the reference image
 is used instead.
 
 Nonlinear registration to reference fMRI run:
 In cases when the input fMRI images are registered to a reference fMRI and there is significant
-movement between the two scanning runs, it can be beneficial to perform nonlinear registration 
-(using 'fnirt') to the reference fMRI image. 
+movement between the two scanning runs, it can be beneficial to perform nonlinear registration
+(using 'fnirt') to the reference fMRI image.
 In this case --fmrirefreg can be set to "nonlinear"; otherwise a linear registration is used.
 
 No available SDC method:
 When no field map images are available and therefore no SDC method can be used to correct
-the distortion, --dcmethod can be set to "NONE". In this case fMRIVolume pipeline is run without 
-appropriate distortion correction of the fMRI images. This is NOT RECOMMENDED under normal 
-circumstances. The pipeline will attempt 6 DOF FreeSurfer BBR registration of the distorted 
+the distortion, --dcmethod can be set to "NONE". In this case fMRIVolume pipeline is run without
+appropriate distortion correction of the fMRI images. This is NOT RECOMMENDED under normal
+circumstances. The pipeline will attempt 6 DOF FreeSurfer BBR registration of the distorted
 fMRI to the T1w image. Distorted portions of the fMRI data will not align with the cortical ribbon.
-In HCP data 30% of the cortical surface will be misaligned by at least half cortical thickness 
-and 10% of the cortical surface will be completely misaligned by a full cortical thickness. 
-At a future time, we may be able to add support for fieldmap-less distortion correction. 
-At this time, however, despite ongoing efforts, this problem is unsolved and no extant approach 
+In HCP data 30% of the cortical surface will be misaligned by at least half cortical thickness
+and 10% of the cortical surface will be completely misaligned by a full cortical thickness.
+At a future time, we may be able to add support for fieldmap-less distortion correction.
+At this time, however, despite ongoing efforts, this problem is unsolved and no extant approach
 has been successfully shown to demonstrate clear improvement according to the accuracy standards
 of HCP-Style data analysis when compared to gold-standard fieldmap-based correction.
 
@@ -348,7 +348,7 @@ check_fsl_version()
 
 	# parse the FSL version information into primary, secondary, and tertiary parts
 	fsl_version_array=(${fsl_version//./ })
-	
+
 	fsl_primary_version="${fsl_version_array[0]}"
 	fsl_primary_version=${fsl_primary_version//[!0-9]/}
 
@@ -403,23 +403,23 @@ if [ -z ${NameOffMRI} ]; then
 	log_Err_Abort "--fmriname must be specified"
 fi
 
-FinalfMRIResolution=`opts_GetOpt1 "--fmrires" $@`  
+FinalfMRIResolution=`opts_GetOpt1 "--fmrires" $@`
 log_Msg "FinalfMRIResolution: ${FinalfMRIResolution}"
 if [ -z ${FinalfMRIResolution} ]; then
 	log_Err_Abort "--fmrires must be specified"
 fi
 
 fMRIScout=`opts_GetOpt1 "--fmriscout" $@`
-fMRIScout=`opts_DefaultOpt $fMRIScout NONE` # Set to NONE if no scout is provided. 
-                                            # NOTE: If external fMRI reference is to be used (--fmriref), --fmriscout 
-                                            #   should not be provided or it needs to be set to NONE. The two options 
+fMRIScout=`opts_DefaultOpt $fMRIScout NONE` # Set to NONE if no scout is provided.
+                                            # NOTE: If external fMRI reference is to be used (--fmriref), --fmriscout
+                                            #   should not be provided or it needs to be set to NONE. The two options
                                             #   are mutually exclusive.
 log_Msg "fMRIScout: ${fMRIScout}"
 
 EchoSpacing=`opts_GetOpt1 "--echospacing" $@`  # *Effective* Echo Spacing of fMRI image, in seconds
 log_Msg "EchoSpacing: ${EchoSpacing}"
 
-UnwarpDir=`opts_GetOpt1 "--unwarpdir" $@`  
+UnwarpDir=`opts_GetOpt1 "--unwarpdir" $@`
 log_Msg "UnwarpDir: ${UnwarpDir}"
 
 SpinEchoPhaseEncodeNegative=`opts_GetOpt1 "--SEPhaseNeg" $@`
@@ -434,10 +434,10 @@ log_Msg "TopupConfig: ${TopupConfig}"
 MagnitudeInputName=`opts_GetOpt1 "--fmapmag" $@`  # Expects 4D volume with two 3D timepoints
 log_Msg "MagnitudeInputName: ${MagnitudeInputName}"
 
-PhaseInputName=`opts_GetOpt1 "--fmapphase" $@`  
+PhaseInputName=`opts_GetOpt1 "--fmapphase" $@`
 log_Msg "PhaseInputName: ${PhaseInputName}"
 
-deltaTE=`opts_GetOpt1 "--echodiff" $@`  
+deltaTE=`opts_GetOpt1 "--echodiff" $@`
 log_Msg "deltaTE: ${deltaTE}"
 
 GEB0InputName=`opts_GetOpt1 "--fmapgeneralelectric" $@`
@@ -524,13 +524,13 @@ case "$MotionCorrectionType" in
     MCFLIRT|FLIRT)
 		log_Msg "MotionCorrectionType: ${MotionCorrectionType}"
     ;;
-    
+
     *)
 		log_Err_Abort "--mctype must be 'MCFLIRT' (default) or 'FLIRT'"
     ;;
 esac
 
-GradientDistortionCoeffs=`opts_GetOpt1 "--gdcoeffs" $@`  
+GradientDistortionCoeffs=`opts_GetOpt1 "--gdcoeffs" $@`
 log_Msg "GradientDistortionCoeffs: ${GradientDistortionCoeffs}"
 if [ -z ${GradientDistortionCoeffs} ]; then
 	log_Err_Abort "--gdcoeffs must be specified"
@@ -611,11 +611,11 @@ OutputfMRI2StandardTransform="${NameOffMRI}2standard"
 Standard2OutputfMRITransform="standard2${NameOffMRI}"
 QAImage="T1wMulEPI"
 JacobianOut="Jacobian"
-SubjectFolder="$Path"/"$Subject"
+SubjectFolder="${Path}/derivatives/hcp-pipelines/${Subject}"
 #note, this file doesn't exist yet, gets created by ComputeSpinEchoBiasField.sh during DistortionCorrectionAnd...
 sebasedBiasFieldMNI="$SubjectFolder/$AtlasSpaceFolder/Results/$NameOffMRI/${NameOffMRI}_sebased_bias.nii.gz"
 
-fMRIFolder="$Path"/"$Subject"/"$NameOffMRI"
+fMRIFolder="$SubjectFolder"/"$NameOffMRI"
 
 # Set UseBiasFieldMNI variable, and error check BiasCorrection variable
 # (needs to go after "Naming Conventions" rather than the the initial argument parsing)
@@ -625,7 +625,7 @@ case "$BiasCorrection" in
 		;;
     LEGACY)
         UseBiasFieldMNI="${fMRIFolder}/${BiasFieldMNI}.${FinalfMRIResolution}"
-		;;    
+		;;
     SEBASED)
         if [[ "$DistortionCorrection" != "${SPIN_ECHO_METHOD_OPT}" ]]
         then
@@ -647,14 +647,14 @@ esac
 
 PreregisterTool=`opts_GetOpt1 "--preregistertool" $@`                    # what to use to preregister fMRI to T1w image before FreeSurfer BBR - epi_reg (default) or flirt
 DoSliceTimeCorrection=`opts_GetOpt1 "--doslicetime" $@`                  # Whether to do slicetime correction (TRUE), FALSE to omit.
-                                                                         # WARNING: This LegacyStyleData option of slice timing correction is performed before motion correction 
+                                                                         # WARNING: This LegacyStyleData option of slice timing correction is performed before motion correction
                                                                          #   and thus assumes that the brain is motionless. Errors in temporal interpolation will occur in the presence
-                                                                         #   of head motion and may also disrupt data quality measures as shown in Power et al 2017 PLOS One "Temporal 
+                                                                         #   of head motion and may also disrupt data quality measures as shown in Power et al 2017 PLOS One "Temporal
                                                                          #   interpolation alters motion in fMRI scans: Magnitudes and consequences for artifact detection." Slice timing
-                                                                         #   correction and motion correction would ideally be performed simultaneously; however, this is not currently 
-                                                                         #   supported by any major software tool. HCP-Style fast TR fMRI data acquisitions (TR<=1s) avoid the need for 
-                                                                         #   slice timing correction, provide major advantages for fMRI denoising, and are recommended. 
-                                                                         #   No slice timing correction is done by default.  
+                                                                         #   correction and motion correction would ideally be performed simultaneously; however, this is not currently
+                                                                         #   supported by any major software tool. HCP-Style fast TR fMRI data acquisitions (TR<=1s) avoid the need for
+                                                                         #   slice timing correction, provide major advantages for fMRI denoising, and are recommended.
+                                                                         #   No slice timing correction is done by default.
 
 SliceTimerCorrectionParameters=$(opts_GetOpt1 "--slicetimerparams" "$@") # A '@' separated list of FSL slicetimer options. Please see FSL slicetimer documentation for details.
                                                                          # Verbose (-v) is already turned on. TR is read from 'pixdim4' of the input NIFTI itself.
@@ -666,33 +666,33 @@ fMRIMask=`opts_GetOpt1 "--fmrimask" $@`                                  # Speci
                                                                          #   T1_DILATED2x_fMRI_FOV: twice dilated T1w brain based mask combined with fMRI FOV
                                                                          #   fMRI_FOV: fMRI FOV mask only (i.e., voxels having spatial coverage at all time points)
 
-fMRIReference=`opts_GetOpt1 "--fmriref" $@`                              # Reference fMRI run name (i.e., --fmriname from run to be used as *reference*) to use as 
+fMRIReference=`opts_GetOpt1 "--fmriref" $@`                              # Reference fMRI run name (i.e., --fmriname from run to be used as *reference*) to use as
                                                                          #   motion correction target and to copy atlas (MNI152) registration from (or NONE; default).
                                                                          #   NOTE: The reference fMRI has to have been fully processed using fMRIVolume pipeline, so
                                                                          #   that a distortion correction and atlas (MNI152) registration solution for the reference
                                                                          #   fMRI already exists. Also, the reference fMRI must have been acquired using the same
-                                                                         #   phase encoding direction, or it can not serve as a valid reference. 
+                                                                         #   phase encoding direction, or it can not serve as a valid reference.
                                                                          # WARNING: This option excludes the use of --fmriscout option, as the scout from the specified
                                                                          #   reference fMRI is used instead.
 
-fMRIReferenceReg=`opts_GetOpt1 "--fmrirefreg" $@`                        # In the cases when the fMRI input is registered to a specified fMRI reference, this option 
+fMRIReferenceReg=`opts_GetOpt1 "--fmrirefreg" $@`                        # In the cases when the fMRI input is registered to a specified fMRI reference, this option
                                                                          #   specifies whether to use 'linear' or 'nonlinear' registration to the reference fMRI.
                                                                          #   Default is 'linear'.
 
 # Defaults
 PreregisterTool=`opts_DefaultOpt $PreregisterTool "epi_reg"`
-DoSliceTimeCorrection=`opts_DefaultOpt $DoSliceTimeCorrection "FALSE"`   
+DoSliceTimeCorrection=`opts_DefaultOpt $DoSliceTimeCorrection "FALSE"`
 fMRIReference=`opts_DefaultOpt $fMRIReference "NONE"`
 fMRIMask=`opts_DefaultOpt $fMRIMask "T1_fMRI_FOV"`
 
-# If --dcmethod=NONE                                                     # WARNING: The fMRIVolume pipeline is being run without appropriate distortion correction of the fMRI images. 
-                                                                         #   This is NOT RECOMMENDED under normal circumstances. We will attempt 6 DOF FreeSurfer BBR registration of 
-                                                                         #   the distorted fMRI to the undistorted T1w image. Distorted portions of the fMRI data will not align with 
-                                                                         #   the cortical ribbon. In HCP data 30% of the cortical surface will be misaligned by at least half cortical 
-                                                                         #   thickness and 10% of the cortical surface will be completely misaligned by a full cortical thickness. 
-                                                                         #   At a future time, we may be able to add support for fieldmap-less distortion correction. At this time, 
-                                                                         #   however, despite ongoing efforts, this problem is unsolved and no extant approach has been successfully 
-                                                                         #   shown to demonstrate clear improvement according to the accuracy standards of HCP-Style data analysis when 
+# If --dcmethod=NONE                                                     # WARNING: The fMRIVolume pipeline is being run without appropriate distortion correction of the fMRI images.
+                                                                         #   This is NOT RECOMMENDED under normal circumstances. We will attempt 6 DOF FreeSurfer BBR registration of
+                                                                         #   the distorted fMRI to the undistorted T1w image. Distorted portions of the fMRI data will not align with
+                                                                         #   the cortical ribbon. In HCP data 30% of the cortical surface will be misaligned by at least half cortical
+                                                                         #   thickness and 10% of the cortical surface will be completely misaligned by a full cortical thickness.
+                                                                         #   At a future time, we may be able to add support for fieldmap-less distortion correction. At this time,
+                                                                         #   however, despite ongoing efforts, this problem is unsolved and no extant approach has been successfully
+                                                                         #   shown to demonstrate clear improvement according to the accuracy standards of HCP-Style data analysis when
                                                                          #   compared to gold-standard fieldmap-based correction.
 
 
@@ -752,7 +752,7 @@ fi
 # -- Use of external fMRI reference
 
 if [ "$fMRIReference" = "NONE" ]; then
-  fMRIReferenceReg="NONE"    
+  fMRIReferenceReg="NONE"
   fMRIReferencePath="NONE"
   ReferenceResultsFolder="NONE"
 else
@@ -763,7 +763,7 @@ else
     log_Err_Abort "Both fMRI Reference (--fmriref=${fMRIReference}) and fMRI Scout (--fmriscout=${fMRIScout}) were specified! The two options are mutually exclusive."
   fi
 
-  # set reference and check if external reference (if one is specified) exists 
+  # set reference and check if external reference (if one is specified) exists
 
   fMRIReferencePath="$Path"/"$Subject"/"$fMRIReference"
   log_Msg "Using reference image from ${fMRIReferencePath}"
@@ -777,15 +777,15 @@ else
 
   if [ `${FSLDIR}/bin/imtest ${fMRIReferenceImage}` -eq 0 ] ; then
     log_Err_Abort "Intended fMRI Reference does not exist (${fMRIReferenceImage})!"
-  fi 
+  fi
 
   if [ `${FSLDIR}/bin/imtest ${fMRIReferenceImageMask}` -eq 0 ] ; then
     log_Err_Abort "Intended fMRI Reference mask does not exist (${fMRIReferenceImageMask})!"
-  fi 
+  fi
 
   if [ ! -d "$ReferenceResultsFolder" ] ; then
     log_Err_Abort "Reference results folder does not exist and can not be used (${ReferenceResultsFolder})!"
-  fi 
+  fi
 
   # print warning
 
@@ -812,10 +812,10 @@ check_mode_compliance "${ProcessingMode}" "${Compliance}" "${ComplianceMsg}"
 # ------------------------------------------------------------------------------
 
 
-########################################## DO WORK ########################################## 
+########################################## DO WORK ##########################################
 
-T1wFolder="$Path"/"$Subject"/"$T1wFolder"
-AtlasSpaceFolder="$Path"/"$Subject"/"$AtlasSpaceFolder"
+T1wFolder="$SubjectFolder"/"$T1wFolder"
+AtlasSpaceFolder="$SubjectFolder"/"$AtlasSpaceFolder"
 ResultsFolder="$AtlasSpaceFolder"/"$ResultsFolder"/"$NameOffMRI"
 
 mkdir -p ${T1wFolder}/Results/${NameOffMRI}
@@ -856,7 +856,7 @@ if [ "$fMRIReference" != "NONE" ]; then
 
     mkdir -p ${ResultsFolder}
     ${FSLDIR}/bin/imcp ${ReferenceResultsFolder}/"${fMRIReference}_SBRef" ${ResultsFolder}/"${NameOffMRI}_SBRef"
-else    
+else
     # --- Create fake "Scout" if it doesn't exist
     if [ $fMRIScout = "NONE" ] ; then
       ${RUN} ${FSLDIR}/bin/fslroi "$fMRIFolder"/"$OrigTCSName" "$fMRIFolder"/"$OrigScoutName" 0 1
@@ -882,7 +882,7 @@ if [ $DistortionCorrection = "NONE" ] ; then
           "$yorient" != "Posterior-to-Anterior" || \
           "$zorient" != "Inferior-to-Superior" ]] ; then
       reorient=TRUE
-    else 
+    else
       reorient=FALSE
     fi
 
@@ -915,8 +915,8 @@ if [ ! $GradientDistortionCoeffs = "NONE" ] ; then
 		   --in="$fMRIFolder"/"$OrigTCSName" \
 		   --out="$fMRIFolder"/"$NameOffMRI"_gdc \
 		   --owarp="$fMRIFolder"/"$NameOffMRI"_gdc_warp
-	
-    log_Msg "mkdir -p ${fMRIFolder}/${ScoutName}_GradientDistortionUnwarp"	
+
+    log_Msg "mkdir -p ${fMRIFolder}/${ScoutName}_GradientDistortionUnwarp"
     mkdir -p "$fMRIFolder"/"$ScoutName"_GradientDistortionUnwarp
     ${RUN} "$GlobalScripts"/GradientDistortionUnwarp.sh \
 		   --workingdir="$fMRIFolder"/"$ScoutName"_GradientDistortionUnwarp \
@@ -924,7 +924,7 @@ if [ ! $GradientDistortionCoeffs = "NONE" ] ; then
 		   --in="$fMRIFolder"/"$OrigScoutName" \
 		   --out="$fMRIFolder"/"$ScoutName"_gdc \
 		   --owarp="$fMRIFolder"/"$ScoutName"_gdc_warp
-	
+
 	if [[ $UseJacobian == "true" ]]
 	then
 	    ${RUN} ${FSLDIR}/bin/fslmaths "$fMRIFolder"/"$NameOffMRI"_gdc -mul "$fMRIFolder"/"$NameOffMRI"_gdc_warp_jacobian "$fMRIFolder"/"$NameOffMRI"_gdc
@@ -1011,9 +1011,9 @@ else
         rm ${DCFolder}
     fi
     ln -s ${fMRIReferencePath}/${DCFolderName} ${DCFolder}
- 
+
     if [ `${FSLDIR}/bin/imtest ${T1wFolder}/xfms/${fMRIReference}2str` -eq 0 ]; then
-      log_Err_Abort "The expected ${T1wFolder}/xfms/${fMRIReference}2str from the reference (${fMRIReference}) does not exist!"    
+      log_Err_Abort "The expected ${T1wFolder}/xfms/${fMRIReference}2str from the reference (${fMRIReference}) does not exist!"
     else
       ${FSLDIR}/bin/imcp ${T1wFolder}/xfms/${fMRIReference}2str ${T1wFolder}/xfms/${fMRI2strOutputTransform}
     fi
@@ -1055,13 +1055,13 @@ mkdir -p ${ResultsFolder}
 #we need to do this before intensity normalization, as it uses the bias field output
 if [[ ${DistortionCorrection} == "${SPIN_ECHO_METHOD_OPT}" ]]
 then
-    if [ "$fMRIReference" = "NONE" ]; then        
+    if [ "$fMRIReference" = "NONE" ]; then
         #create MNI space corrected fieldmap images
         ${FSLDIR}/bin/applywarp --rel --interp=spline --in=${DCFolder}/PhaseOne_gdc_dc_unbias -w ${AtlasSpaceFolder}/xfms/${AtlasTransform} -r ${fMRIFolder}/${NameOffMRI}_SBRef_nonlin -o ${ResultsFolder}/${NameOffMRI}_PhaseOne_gdc_dc
         ${FSLDIR}/bin/fslmaths ${ResultsFolder}/${NameOffMRI}_PhaseOne_gdc_dc -mas ${fMRIFolder}/${FreeSurferBrainMask}.${FinalfMRIResolution}.nii.gz ${ResultsFolder}/${NameOffMRI}_PhaseOne_gdc_dc
         ${FSLDIR}/bin/applywarp --rel --interp=spline --in=${DCFolder}/PhaseTwo_gdc_dc_unbias -w ${AtlasSpaceFolder}/xfms/${AtlasTransform} -r ${fMRIFolder}/${NameOffMRI}_SBRef_nonlin -o ${ResultsFolder}/${NameOffMRI}_PhaseTwo_gdc_dc
-        ${FSLDIR}/bin/fslmaths ${ResultsFolder}/${NameOffMRI}_PhaseTwo_gdc_dc -mas ${fMRIFolder}/${FreeSurferBrainMask}.${FinalfMRIResolution}.nii.gz ${ResultsFolder}/${NameOffMRI}_PhaseTwo_gdc_dc    
-    else        
+        ${FSLDIR}/bin/fslmaths ${ResultsFolder}/${NameOffMRI}_PhaseTwo_gdc_dc -mas ${fMRIFolder}/${FreeSurferBrainMask}.${FinalfMRIResolution}.nii.gz ${ResultsFolder}/${NameOffMRI}_PhaseTwo_gdc_dc
+    else
         #as these have been already computed, we can copy them from the reference fMRI
         ${FSLDIR}/bin/imcp ${ReferenceResultsFolder}/${fMRIReference}_PhaseOne_gdc_dc ${ResultsFolder}/${NameOffMRI}_PhaseOne_gdc_dc
         ${FSLDIR}/bin/imcp ${ReferenceResultsFolder}/${fMRIReference}_PhaseOne_gdc_dc ${ResultsFolder}/${NameOffMRI}_PhaseOne_gdc_dc
@@ -1072,12 +1072,12 @@ then
     #create MNINonLinear final fMRI resolution bias field outputs
     if [[ ${BiasCorrection} == "SEBASED" ]]
     then
-        if [ "$fMRIReference" = "NONE" ]; then  
+        if [ "$fMRIReference" = "NONE" ]; then
             ${FSLDIR}/bin/applywarp --interp=trilinear -i ${DCFolder}/ComputeSpinEchoBiasField/sebased_bias_dil.nii.gz -r ${fMRIFolder}/${NameOffMRI}_SBRef_nonlin -w ${AtlasSpaceFolder}/xfms/${AtlasTransform} -o ${ResultsFolder}/${NameOffMRI}_sebased_bias.nii.gz
             ${FSLDIR}/bin/fslmaths ${ResultsFolder}/${NameOffMRI}_sebased_bias.nii.gz -mas ${fMRIFolder}/${FreeSurferBrainMask}.${FinalfMRIResolution}.nii.gz ${ResultsFolder}/${NameOffMRI}_sebased_bias.nii.gz
-            
+
             ${FSLDIR}/bin/applywarp --interp=trilinear -i ${DCFolder}/ComputeSpinEchoBiasField/sebased_reference_dil.nii.gz -r ${fMRIFolder}/${NameOffMRI}_SBRef_nonlin -w ${AtlasSpaceFolder}/xfms/${AtlasTransform} -o ${ResultsFolder}/${NameOffMRI}_sebased_reference.nii.gz
-            ${FSLDIR}/bin/fslmaths ${ResultsFolder}/${NameOffMRI}_sebased_reference.nii.gz -mas ${fMRIFolder}/${FreeSurferBrainMask}.${FinalfMRIResolution}.nii.gz ${ResultsFolder}/${NameOffMRI}_sebased_reference.nii.gz       
+            ${FSLDIR}/bin/fslmaths ${ResultsFolder}/${NameOffMRI}_sebased_reference.nii.gz -mas ${fMRIFolder}/${FreeSurferBrainMask}.${FinalfMRIResolution}.nii.gz ${ResultsFolder}/${NameOffMRI}_sebased_reference.nii.gz
 
             ${FSLDIR}/bin/applywarp --interp=trilinear -i ${DCFolder}/ComputeSpinEchoBiasField/${NameOffMRI}_dropouts.nii.gz -r ${fMRIFolder}/${NameOffMRI}_SBRef_nonlin -w ${AtlasSpaceFolder}/xfms/${AtlasTransform} -o ${ResultsFolder}/${NameOffMRI}_dropouts.nii.gz
 
