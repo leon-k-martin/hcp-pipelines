@@ -26,7 +26,7 @@ PARAMETERs are [ ] = optional; < > = user supplied value
 "
     #automatic argument descriptions
     opts_ShowArguments
-    
+
     #do not use exit, the parsing code takes care of it
 }
 
@@ -58,7 +58,7 @@ opts_ShowValues
 ##
 ## ----------------------------------------------------------
 
-#set -x  # If you want a verbose listing of all the commands, uncomment this line
+# set -x  # If you want a verbose listing of all the commands, uncomment this line
 
 
 ### --------------------------------------------- ###
@@ -67,7 +67,7 @@ opts_ShowValues
 
 TemplatesFolder="$HCPPIPEDIR/global/templates/StructuralQC"
 
-# Some of the scenes display files in $TemplatesFolder (specifically, the MNI152 
+# Some of the scenes display files in $TemplatesFolder (specifically, the MNI152
 # volume template and group myelin maps from the S1200 release of HCP-YA).
 # The following variable controls whether those files get copied from $TemplatesFolder
 # to $OutputSceneFolder (use 'TRUE') or not (use 'FALSE', in which case the script determines
@@ -133,9 +133,9 @@ function copyTemplateFiles {
 
     # Remove any pre-existing template files
     # note that we take the MNI T1 volume from a different folder than the rest, but put it into the same folder
-    rm -f "$targetDir"/S1200.{MyelinMap,sulc}* 
+    rm -f "$targetDir"/S1200.{MyelinMap,sulc}*
     rm -f "$targetDir"/MNI152_T1_0.8mm.nii.gz
-    
+
     if [[ "$CopyTemplatesAs" != "SYMLINKS" ]]; then
         if ((verbose)); then
             echo "Copying template files to $targetDir as files"
@@ -186,7 +186,7 @@ if ((verbose)); then
 fi
 
 # Define some convenience variables
-AtlasSpaceFolder="$StudyFolder/$Subject/MNINonLinear"
+AtlasSpaceFolder="$StudyFolder/derivatives/hcp-pipelines/${Subject}/MNINonLinear"
 mesh="164k_fs_LR"
 
 if [[ -d "$AtlasSpaceFolder/xfms" ]]; then
@@ -200,12 +200,12 @@ fi
 # Replace dummy strings in the template scenes to generate
 # a scene file appropriate for each subject
 SubjectSceneFile="$OutputSceneFolder/$Subject.structuralQC.wb_scene"
-sed -e "s|${StudyFolderDummyStr}|${relPathToStudy}|g" \
+sed -e "s|${StudyFolderDummyStr}|${relPathToStudy}/derivatives/hcp-pipelines|g" \
     -e "s|${SubjectIDDummyStr}|${Subject}|g" \
     -e "s|${TemplatesFolderDummyStr}|${relPathToTemplates}|g" \
     "$TemplatesFolder"/TEMPLATE_structuralQC.scene > "$SubjectSceneFile"
 
-# If StrainJ maps don't exist for the various registrations, 
+# If StrainJ maps don't exist for the various registrations,
 # but ArealDistortion maps do, use those instead
 for regName in FS MSMSulc MSMAll; do
     if [[ ! -e "$AtlasSpaceFolder/$Subject.StrainJ_$regName.$mesh.dscalar.nii" && -e "$AtlasSpaceFolder/$Subject.ArealDistortion_$regName.$mesh.dscalar.nii" ]]; then
@@ -218,7 +218,7 @@ done
 
 ## Map the T1w_acpc space volume into MNI152 space, using just the affine (linear) component
 ## [Similar to the 'MNINonLinear/xfms/T1w_acpc_dc_restore_brain_to_MNILinear.nii.gz' volume
-## (created in AtlasRegistrationToMNI152_FLIRTandFNIRT.sh) 
+## (created in AtlasRegistrationToMNI152_FLIRTandFNIRT.sh)
 ## except applied to the NON-brain-extracted volume].
 acpc2MNILinear="$AtlasSpaceFolder/xfms/acpc2MNILinear.mat"
 if [[ -e "$acpc2MNILinear" ]]; then
@@ -251,8 +251,8 @@ if [[ -e "$acpc2MNILinear" ]]; then
 fi
 
 ## Create a surface-mapped version of the FNIRT volume distortion (for easy visualization).
-## We could use wb_command -volume-distortion on MNINonLinear/xfms/acpc_dc2standard.nii.gz, 
-## but its "isotropic" distortion (1st volume) is basically the same as the -jout (Jacobian) 
+## We could use wb_command -volume-distortion on MNINonLinear/xfms/acpc_dc2standard.nii.gz,
+## but its "isotropic" distortion (1st volume) is basically the same as the -jout (Jacobian)
 ## output of fnirt (highly correlated, but there is a small bias between the two, perhaps
 ## because the fnirt jacobian doesn't include the affine component)?
 ## So, since the fnirt jacobian is already part of the HCPpipelines output, we'll
@@ -274,7 +274,7 @@ wb_command -volume-palette "$jacobianLog2" MODE_USER_SCALE \
 
 # Map to surface
 mapName=NonlinearRegJacobians_FNIRT
-for hemi in L R; do 
+for hemi in L R; do
     surf=$AtlasSpaceFolder/$Subject.$hemi.midthickness.$mesh.surf.gii
     # Warpfields are smooth enough that trilinear interpolation is fine in -volume-to-surface-mapping
     wb_command -volume-to-surface-mapping $jacobianLog2 "$surf" \
@@ -282,12 +282,14 @@ for hemi in L R; do
 done
 
 # Convert to dscalar and set palette properties
-wb_command -cifti-create-dense-scalar "$OutputSceneFolder/$Subject.$mapName.$mesh.dscalar.nii" \
-  -left-metric "$OutputSceneFolder/$Subject.$mapName.L.$mesh.func.gii" \
-  -right-metric "$OutputSceneFolder/$Subject.$mapName.R.$mesh.func.gii"
-wb_command -set-map-names "$OutputSceneFolder/$Subject.$mapName.$mesh.dscalar.nii" -map 1 "${Subject}_$mapName"
-wb_command -cifti-palette "$OutputSceneFolder/$Subject.$mapName.$mesh.dscalar.nii" MODE_USER_SCALE \
-  "$OutputSceneFolder/$Subject.$mapName.$mesh.dscalar.nii" \
+wb_command -cifti-create-dense-scalar "${OutputSceneFolder}/${Subject}.${mapName}.${mesh}.dscalar.nii" \
+  -left-metric "$OutputSceneFolder/${Subject}.${mapName}.L.${mesh}.func.gii" \
+  -right-metric "$OutputSceneFolder/${Subject}.${mapName}.R.${mesh}.func.gii"
+
+wb_command -set-map-names "$OutputSceneFolder/$Subject.${mapName}.${mesh}.dscalar.nii" -map 1 "${Subject}_${mapName}"
+
+wb_command -cifti-palette "$OutputSceneFolder/$Subject.${mapName}.${mesh}.dscalar.nii" MODE_USER_SCALE \
+  "$OutputSceneFolder/${Subject}.${mapName}.${mesh}.dscalar.nii" \
   "${paletteArgs[@]}"
 
 pngDir="$OutputSceneFolder/snapshots"
