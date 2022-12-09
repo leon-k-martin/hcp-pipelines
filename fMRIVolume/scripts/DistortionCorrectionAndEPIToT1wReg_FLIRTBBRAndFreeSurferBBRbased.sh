@@ -684,7 +684,7 @@ else
   ${FREESURFER_HOME}/bin/bbregister --s ${FreeSurferSubjectID} --mov ${WD}/${ScoutInputFile}${ScoutExtension}2T1w_init.nii.gz --surf white.deformed --init-reg ${FreeSurferSubjectFolder}/${FreeSurferSubjectID}/mri/transforms/eye.dat --bold --reg ${WD}/EPItoT1w.dat --${dof} --o ${WD}/${ScoutInputFile}${ScoutExtension}2T1w.nii.gz
   # Create FSL-style matrix and then combine with existing warp fields
   log_Msg "Create FSL-style matrix and then combine with existing warp fields"
-  ${FREESURFER_HOME}/bin/tkregister2_cmdl --noedit --reg ${WD}/EPItoT1w.dat --mov ${WD}/${ScoutInputFile}${ScoutExtension}2T1w_init.nii.gz --targ ${T1wImage}.nii.gz --fslregout ${WD}/fMRI2str_refinement.mat
+  ${FREESURFER_HOME}/tktools/tkregister2_cmdl --noedit --reg ${WD}/EPItoT1w.dat --mov ${WD}/${ScoutInputFile}${ScoutExtension}2T1w_init.nii.gz --targ ${T1wImage}.nii.gz --fslregout ${WD}/fMRI2str_refinement.mat
 fi
 ${FSLDIR}/bin/convertwarp --relout --rel --warp1=${WD}/${ScoutInputFile}${ScoutExtension}2T1w_init_warp.nii.gz --ref=${T1wImage} --postmat=${WD}/fMRI2str_refinement.mat --out=${WD}/fMRI2str.nii.gz
 
@@ -816,9 +816,9 @@ echo " END: `date`" >> $WD/log.txt
 if [ -e $WD/qa.txt ] ; then rm -f $WD/qa.txt ; fi
 echo "cd `pwd`" >> $WD/qa.txt
 echo "# Check registration of EPI to T1w (with all corrections applied)" >> $WD/qa.txt
-echo "fslview ${T1wRestoreImage} ${RegOutput} ${QAImage}" >> $WD/qa.txt
+echo "fsleyes ${T1wRestoreImage} ${RegOutput} ${QAImage}" >> $WD/qa.txt
 echo "# Check undistortion of the scout image" >> $WD/qa.txt
-echo "fslview `dirname ${ScoutInputName}`/GradientDistortionUnwarp/Scout ${WD}/${ScoutInputFile}${ScoutExtension}" >> $WD/qa.txt
+echo "fsleyes `dirname ${ScoutInputName}`/GradientDistortionUnwarp/Scout ${WD}/${ScoutInputFile}${ScoutExtension}" >> $WD/qa.txt
 
 ##############################################################################################
 
