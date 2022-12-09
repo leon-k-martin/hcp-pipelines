@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/bash
 
 # Intensity normalisation, and bias field correction, and optional Jacobian modulation, applied to fMRI images (all inputs must be in fMRI space)
 
@@ -114,7 +114,7 @@ BrainMask=`getopt1 "--brainmask" $@`  # "$4"
 OutputfMRI=`getopt1 "--ofmri" $@`  # "$5"
 ScoutInput=`getopt1 "--inscout" $@`  # "$6"
 ScoutOutput=`getopt1 "--oscout" $@`  # "$7"
-UseJacobian=`getopt1 "--usejacobian" $@`  # 
+UseJacobian=`getopt1 "--usejacobian" $@`  #
 fMRIMask=`getopt1 "--fmrimask" $@`
 
 verbose_red_echo "---> Intensity normalization"
@@ -181,7 +181,7 @@ FinalMask=`${FSLDIR}/bin/remove_ext ${InputfMRI}`_finalmask
 T1FOVMask=`${FSLDIR}/bin/remove_ext ${InputfMRI}`_T1FOVmask
 ${FSLDIR}/bin/fslmaths ${BrainMask} -bin -mas ${InputfMRI}_mask ${T1FOVMask}
 
-# Use the requested fMRI mask 
+# Use the requested fMRI mask
 
 if [ "${fMRIMask}" = "T1_fMRI_FOV" ] ; then
     # FinalMask is a combination of the FS-derived brainmask, and the spatial coverage mask that captures the
@@ -245,6 +245,6 @@ echo " END: `date`" >> $WD/log.txt
 if [ -e $WD/qa.txt ] ; then rm -f $WD/qa.txt ; fi
 echo "cd `pwd`" >> $WD/qa.txt
 echo "# Check that the fMRI and Scout images look OK and that the mean intensity across the timeseries is about 10000" >> $WD/qa.txt
-echo "fslview ${ScoutOutput} ${OutputfMRI}" >> $WD/qa.txt
+echo "fsleyes ${ScoutOutput} ${OutputfMRI}" >> $WD/qa.txt
 
 ##############################################################################################

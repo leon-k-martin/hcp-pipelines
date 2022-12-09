@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/bash
 
 # Requirements for this script
 #  installed versions of: FSL, gradunwarp (HCP version)
@@ -76,9 +76,9 @@ defaultopt() {
 
 ################################################### OUTPUT FILES #####################################################
 
-# Output images (in $WD): Magnitude  Magnitude_brain Magnitude_brain_mask FieldMap  
+# Output images (in $WD): Magnitude  Magnitude_brain Magnitude_brain_mask FieldMap
 #         Plus the following if gradient distortion correction is run:
-#                         Magnitude_gdc Magnitude_gdc_warp  Magnitude_brain_gdc FieldMap_gdc  
+#                         Magnitude_gdc Magnitude_gdc_warp  Magnitude_brain_gdc FieldMap_gdc
 # Output images (not in $WD):  ${MagnitudeOutput}  ${MagnitudeBrainOutput}  ${FieldMapOutput}
 
 ################################################## OPTION PARSING #####################################################
@@ -110,7 +110,7 @@ case $DistortionCorrection in
 
         # -----------------------------------------------
         # -- General Electric Gradient Echo Field Maps --
-        # ----------------------------------------------- 
+        # -----------------------------------------------
 
         GEB0InputName=`getopt1 "--fmap" $@`
 
@@ -154,7 +154,7 @@ echo "PWD = `pwd`" >> $WD/log.txt
 echo "date: `date`" >> $WD/log.txt
 echo " " >> $WD/log.txt
 
-########################################## DO WORK ########################################## 
+########################################## DO WORK ##########################################
 
 case $DistortionCorrection in
 
@@ -175,7 +175,7 @@ case $DistortionCorrection in
 
         # -----------------------------------------------
         # -- General Electric Gradient Echo Field Maps --
-        # ----------------------------------------------- 
+        # -----------------------------------------------
 
         ${FSLDIR}/bin/fslsplit ${GEB0InputName}     # split image into vol0000=fieldmap and vol0001=magnitude
 		    mv vol0000.nii.gz ${WD}/FieldMap_deg.nii.gz
@@ -228,7 +228,7 @@ if [ ! $GradientDistortionCoeffs = "NONE" ] ; then
       --in=${WD}/Magnitude \
       --out=${WD}/Magnitude_gdc \
       --owarp=${WD}/Magnitude_gdc_warp
-      
+
   ${FSLDIR}/bin/applywarp --rel --interp=nn -i ${WD}/Magnitude_brain -r ${WD}/Magnitude_brain -w ${WD}/Magnitude_gdc_warp -o ${WD}/Magnitude_brain_gdc
   ${FSLDIR}/bin/fslmaths ${WD}/Magnitude_gdc -mas ${WD}/Magnitude_brain_gdc ${WD}/Magnitude_brain_gdc
   ${FSLDIR}/bin/fslmaths ${WD}/Magnitude_brain_gdc -bin -ero -ero ${WD}/Magnitude_brain_gdc_ero
@@ -249,14 +249,14 @@ log_Msg "Field Map Preprocessing and Gradient Unwarping"
 log_Msg "END"
 echo " END: `date`" >> $WD/log.txt
 
-########################################## QA STUFF ########################################## 
+########################################## QA STUFF ##########################################
 
 if [ -e $WD/qa.txt ] ; then rm -f $WD/qa.txt ; fi
 echo "cd `pwd`" >> $WD/qa.txt
 echo "# Check the brain extraction and distortion correction of the fieldmap magnitude image" >> $WD/qa.txt
-echo "fslview ${WD}/Magnitude ${MagnitudeOutput} ${MagnitudeBrainOutput} -l Red -t 0.5" >> $WD/qa.txt
+echo "fsleyes ${WD}/Magnitude ${MagnitudeOutput} ${MagnitudeBrainOutput} -l Red -t 0.5" >> $WD/qa.txt
 echo "# Check the range (largish values around 600 rad/s) and general smoothness/look of fieldmap (should be large in inferior/temporal areas mainly)" >> $WD/qa.txt
-echo "fslview ${FieldMapOutput}" >> $WD/qa.txt
+echo "fsleyes ${FieldMapOutput}" >> $WD/qa.txt
 
 ##############################################################################################
 

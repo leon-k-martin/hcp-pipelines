@@ -20,4 +20,4 @@
 PreFreeSurferPipeline.sh.*
 FreeSurferPipeline.sh.*
 PostFreeSurferPipeline.sh.*
-
+GenericfMRIVolumeProcessingPipeline.sh.*

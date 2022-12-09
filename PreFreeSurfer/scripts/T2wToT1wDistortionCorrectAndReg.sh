@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/bash
 
 # Requirements for this script
 #  installed versions of: FSL, gradunwarp (HCP version)
@@ -141,30 +141,30 @@ defaultopt() {
 ################################################## OPTION PARSING #####################################################
 
 # parse arguments
-WD=`getopt1 "--workingdir" $@`  
-T1wImage=`getopt1 "--t1" $@`  
-T1wImageBrain=`getopt1 "--t1brain" $@`  
-T2wImage=`getopt1 "--t2" $@` 
-T2wImageBrain=`getopt1 "--t2brain" $@`  
-MagnitudeInputName=`getopt1 "--fmapmag" $@`  
-PhaseInputName=`getopt1 "--fmapphase" $@`  
-GEB0InputName=`getopt1 "--fmapgeneralelectric" $@` 
-TE=`getopt1 "--echodiff" $@`  
-SpinEchoPhaseEncodeNegative=`getopt1 "--SEPhaseNeg" $@`  
-SpinEchoPhaseEncodePositive=`getopt1 "--SEPhasePos" $@`  
-SEEchoSpacing=`getopt1 "--seechospacing" $@` 
-SEUnwarpDir=`getopt1 "--seunwarpdir" $@`  
-T1wSampleSpacing=`getopt1 "--t1sampspacing" $@`  
-T2wSampleSpacing=`getopt1 "--t2sampspacing" $@`  
-UnwarpDir=`getopt1 "--unwarpdir" $@`  
-OutputT1wImage=`getopt1 "--ot1" $@`  
-OutputT1wImageBrain=`getopt1 "--ot1brain" $@`  
-OutputT1wTransform=`getopt1 "--ot1warp" $@`  
-OutputT2wImage=`getopt1 "--ot2" $@`  
-OutputT2wTransform=`getopt1 "--ot2warp" $@`  
-DistortionCorrection=`getopt1 "--method" $@`  
-TopupConfig=`getopt1 "--topupconfig" $@`  
-GradientDistortionCoeffs=`getopt1 "--gdcoeffs" $@`  
+WD=`getopt1 "--workingdir" $@`
+T1wImage=`getopt1 "--t1" $@`
+T1wImageBrain=`getopt1 "--t1brain" $@`
+T2wImage=`getopt1 "--t2" $@`
+T2wImageBrain=`getopt1 "--t2brain" $@`
+MagnitudeInputName=`getopt1 "--fmapmag" $@`
+PhaseInputName=`getopt1 "--fmapphase" $@`
+GEB0InputName=`getopt1 "--fmapgeneralelectric" $@`
+TE=`getopt1 "--echodiff" $@`
+SpinEchoPhaseEncodeNegative=`getopt1 "--SEPhaseNeg" $@`
+SpinEchoPhaseEncodePositive=`getopt1 "--SEPhasePos" $@`
+SEEchoSpacing=`getopt1 "--seechospacing" $@`
+SEUnwarpDir=`getopt1 "--seunwarpdir" $@`
+T1wSampleSpacing=`getopt1 "--t1sampspacing" $@`
+T2wSampleSpacing=`getopt1 "--t2sampspacing" $@`
+UnwarpDir=`getopt1 "--unwarpdir" $@`
+OutputT1wImage=`getopt1 "--ot1" $@`
+OutputT1wImageBrain=`getopt1 "--ot1brain" $@`
+OutputT1wTransform=`getopt1 "--ot1warp" $@`
+OutputT2wImage=`getopt1 "--ot2" $@`
+OutputT2wTransform=`getopt1 "--ot2warp" $@`
+DistortionCorrection=`getopt1 "--method" $@`
+TopupConfig=`getopt1 "--topupconfig" $@`
+GradientDistortionCoeffs=`getopt1 "--gdcoeffs" $@`
 UseJacobian=`getopt1 "--usejacobian" $@`
 
 # default parameters
@@ -263,7 +263,7 @@ case $DistortionCorrection in
         ### Create fieldmaps (and apply gradient non-linearity distortion correction)
         echo " "
         echo " "
-        echo " " 
+        echo " "
 
         ${HCPPIPEDIR_Global}/FieldMapPreprocessingAll.sh \
             --workingdir=${WD}/FieldMap \
@@ -403,7 +403,7 @@ for TXw in $Modalities ; do
         *)
             log_Err "Unable to apply readout distortion correction"
             log_Err_Abort "Unrecognized distortion correction method: ${DistortionCorrection}"
-      
+
     esac
 
     ${FSLDIR}/bin/flirt -in ${WD}/FieldMap.nii.gz -ref ${TXwImage} -applyxfm -init ${WD}/Fieldmap2${TXwImageBasename}.mat -out ${WD}/FieldMap2${TXwImageBasename}
@@ -439,7 +439,7 @@ if [ "${T2wImage}" == "NONE" ] ; then
   verbose_red_echo " ---> Skipping T2w to T1w registration"
 
 else
-        
+
   verbose_echo ""
   verbose_red_echo " ---> Running T2w to T1w registration"
 
@@ -474,16 +474,16 @@ verbose_green_echo "---> Finished T2w To T1w Distortion Correction and Registrat
 log_Msg "END"
 echo " END: `date`" >> $WD/log.txt
 
-########################################## QA STUFF ########################################## 
+########################################## QA STUFF ##########################################
 
 if [ -e $WD/qa.txt ] ; then rm -f $WD/qa.txt ; fi
 echo "cd `pwd`" >> $WD/qa.txt
 echo "# View registration result of corrected T2w to corrected T1w image: showing both images + sqrt(T1w*T2w)" >> $WD/qa.txt
-echo "fslview ${OutputT1wImage} ${OutputT2wImage} ${WD}/T2w2T1w/sqrtT1wbyT2w" >> $WD/qa.txt
+echo "fsleyes ${OutputT1wImage} ${OutputT2wImage} ${WD}/T2w2T1w/sqrtT1wbyT2w" >> $WD/qa.txt
 echo "# Compare pre- and post-distortion correction for T1w" >> $WD/qa.txt
-echo "fslview ${T1wImage} ${OutputT1wImage}" >> $WD/qa.txt
+echo "fsleyes ${T1wImage} ${OutputT1wImage}" >> $WD/qa.txt
 echo "# Compare pre- and post-distortion correction for T2w" >> $WD/qa.txt
-echo "fslview ${T2wImage} ${WD}/${T2wImageBasename}" >> $WD/qa.txt
+echo "fsleyes ${T2wImage} ${WD}/${T2wImageBasename}" >> $WD/qa.txt
 
 ##############################################################################################
 

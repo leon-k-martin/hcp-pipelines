@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/bash
 
 # Requirements for this script
 #  installed versions of: FSL (including python with numpy, needed to run aff2rigid - part of FSL)
@@ -16,11 +16,11 @@ Usage() {
 ${script_name}: Tool for creating a 6 DOF alignment of the AC, ACPC line and hemispheric plane in MNI space
 
 Usage: ${script_name}
-  --workingdir=<working dir> 
-  --in=<input image> 
-  --ref=<reference image> 
-  --out=<output image> 
-  --omat=<output matrix> 
+  --workingdir=<working dir>
+  --in=<input image>
+  --ref=<reference image>
+  --out=<output image>
+  --omat=<output matrix>
   [--brainsize=<brainsize>]
 
 EOF
@@ -109,7 +109,7 @@ echo "PWD = `pwd`" >> $WD/log.txt
 echo "date: `date`" >> $WD/log.txt
 echo " " >> $WD/log.txt
 
-########################################## DO WORK ########################################## 
+########################################## DO WORK ##########################################
 
 # Crop the FOV
 verbose_echo " --> Croping the FOV"
@@ -141,13 +141,13 @@ verbose_echo " "
 log_Msg "END"
 echo " END: `date`" >> $WD/log.txt
 
-########################################## QA STUFF ########################################## 
+########################################## QA STUFF ##########################################
 
 if [ -e $WD/qa.txt ] ; then rm -f $WD/qa.txt ; fi
 echo "cd `pwd`" >> $WD/qa.txt
 echo "# Check that the following image does not cut off any brain tissue" >> $WD/qa.txt
-echo "fslview $WD/robustroi" >> $WD/qa.txt
+echo "fsleyes $WD/robustroi" >> $WD/qa.txt
 echo "# Check that the alignment to the reference image is acceptable (the top/last image is spline interpolated)" >> $WD/qa.txt
-echo "fslview $Reference $WD/acpc_final $Output" >> $WD/qa.txt
+echo "fsleyes $Reference $WD/acpc_final $Output" >> $WD/qa.txt
 
 ##############################################################################################

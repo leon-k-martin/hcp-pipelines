@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/bash
 
 # Requirements for this script
 #  installed versions of: FSL
@@ -265,11 +265,11 @@ ${FSLDIR}/bin/imcp ${WD}/${BiasFieldFile}.${FinalfMRIResolution} ${fMRIFolder}/$
 if ((useWbResample))
 then
     tempfiles_create OneStepResampleAffSeries_XXXXXX.txt affseries
-    
+
     for ((k=0; k < $NumFrames; k++))
     do
         vnum=`${FSLDIR}/bin/zeropad $k 4`
-        
+
         #use unquoted $() to change whitespace to spaces
         echo $(cat "$MotionMatrixFolder/${MotionMatrixPrefix}$vnum") >> "$affseries"
 
@@ -282,14 +282,14 @@ then
         fi
         prevmatrix="${MotionMatrixFolder}/${MotionMatrixPrefix}${vnum}"
     done
-    
+
     #gdc warp space is input to input, affine is input to input, OutputTransform is input to MNI
     xfmargs=(-warp "$GradientDistortionField".nii.gz -fnirt "$InputfMRI"
              -affine-series "$affseries" -flirt "$InputfMRI" "$InputfMRI"
              -warp "$OutputTransform".nii.gz -fnirt "$InputfMRI")
-    
+
     wb_command -volume-resample "$InputfMRI" "$WD/$T1wImageFile.$FinalfMRIResolution".nii.gz CUBIC "$OutputfMRI".nii.gz "${xfmargs[@]}" -nifti-output-datatype INT32
-    
+
     #resample all-ones volume series with enclosing voxel to determine FOV coverage
     #yes, this is the entire length of the timeseries on purpose
     tempfiles_create OneStepResampleFovCheck_XXXXXX.nii.gz fovcheck
@@ -332,7 +332,7 @@ else
       ${FSLDIR}/bin/applywarp --rel --interp=nn --in=${WD}/prevols/vol${vnum}_mask.nii.gz --warp=${MotionMatrixFolder}/${MotionMatrixPrefix}${vnum}_all_warp.nii.gz --ref=${WD}/${T1wImageFile}.${FinalfMRIResolution} --out=${WD}/postvols/vol${vnum}_mask.nii.gz
 
       # Create strings for merging
-      FrameMergeSTRING+="${WD}/postvols/vol${vnum}.nii.gz " 
+      FrameMergeSTRING+="${WD}/postvols/vol${vnum}.nii.gz "
       FrameMergeSTRINGII+="${WD}/postvols/vol${vnum}_mask.nii.gz "
 
       #Do Basic Cleanup
@@ -376,7 +376,7 @@ fi
 ${FSLDIR}/bin/fslmaths ${WD}/gdc_dc_jacobian -Tmean ${WD}/gdc_dc_jacobian
 
 #and resample it to MNI space
-# Note that trilinear instead of spline interpolation is used with the purpose to minimize the ringing artefacts that occur 
+# Note that trilinear instead of spline interpolation is used with the purpose to minimize the ringing artefacts that occur
 # with downsampling of the jacobian field and are then propagated to the BOLD image itself.
 ${FSLDIR}/bin/applywarp --rel --interp=trilinear -i ${WD}/gdc_dc_jacobian -r ${WD}/${T1wImageFile}.${FinalfMRIResolution} -w ${StructuralToStandard} -o ${JacobianOut}
 
@@ -395,7 +395,7 @@ echo " END: `date`" >> $WD/log.txt
 if [ -e $WD/qa.txt ] ; then rm -f $WD/qa.txt ; fi
 echo "cd `pwd`" >> $WD/qa.txt
 echo "# Check registrations to low-res standard space" >> $WD/qa.txt
-echo "fslview ${WD}/${T1wImageFile}.${FinalfMRIResolution} ${WD}/${FreeSurferBrainMaskFile}.${FinalfMRIResolution} ${WD}/${BiasFieldFile}.${FinalfMRIResolution} ${OutputfMRI}" >> $WD/qa.txt
+echo "fsleyes ${WD}/${T1wImageFile}.${FinalfMRIResolution} ${WD}/${FreeSurferBrainMaskFile}.${FinalfMRIResolution} ${WD}/${BiasFieldFile}.${FinalfMRIResolution} ${OutputfMRI}" >> $WD/qa.txt
 
 ##############################################################################################
 

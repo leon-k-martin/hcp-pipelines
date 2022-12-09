@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/bash
 
 # Requirements for this script
 #  installed versions of: FSL
@@ -188,7 +188,7 @@ echo " END: `date`" >> $WD/xfms/log.txt
 if [ -e $WD/xfms/qa.txt ] ; then rm -f $WD/xfms/qa.txt ; fi
 echo "cd `pwd`" >> $WD/xfms/qa.txt
 echo "# Check quality of alignment with MNI image" >> $WD/xfms/qa.txt
-echo "fslview ${Reference} ${OutputT1wImageRestore}" >> $WD/xfms/qa.txt
-echo "fslview ${Reference} ${OutputT2wImageRestore}" >> $WD/xfms/qa.txt
+echo "fsleyes ${Reference} ${OutputT1wImageRestore}" >> $WD/xfms/qa.txt
+echo "fsleyes ${Reference} ${OutputT2wImageRestore}" >> $WD/xfms/qa.txt
 
 ##############################################################################################

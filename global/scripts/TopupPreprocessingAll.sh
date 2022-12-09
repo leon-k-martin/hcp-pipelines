@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/bash
 
 # Requirements for this script
 #  installed versions of: FSL, gradunwarp (HCP version)
@@ -47,8 +47,8 @@ Usage() {
   echo "            --echospacing=<effective echo spacing of EPI, in seconds>"
   echo "            --unwarpdir=<PE direction for unwarping according to the *voxel* axes: {x,y,x-,y-} or {i,j,i-,j-}>"
   echo "            [--owarp=<output warpfield image: scout to distortion corrected SE EPI>]"
-  echo "            [--ofmapmag=<output 'Magnitude' image: scout to distortion corrected SE EPI>]" 
-  echo "            [--ofmapmagbrain=<output 'Magnitude' brain image: scout to distortion corrected SE EPI>]"   
+  echo "            [--ofmapmag=<output 'Magnitude' image: scout to distortion corrected SE EPI>]"
+  echo "            [--ofmapmagbrain=<output 'Magnitude' brain image: scout to distortion corrected SE EPI>]"
   echo "            [--ofmap=<output scaled topup field map image>]"
   echo "            [--ojacobian=<output Jacobian image> (of the TOPUP warp field)]"
   echo "            --gdcoeffs=<gradient non-linearity distortion coefficients (Siemens format)>"
@@ -85,14 +85,14 @@ log_SetToolName "TopupPreprocessingAll.sh"
 
 ################################################### OUTPUT FILES #####################################################
 
-# Output images (in $WD): 
+# Output images (in $WD):
 #          BothPhases      (input to topup - combines both pe direction data, plus masking)
 #          SBRef2PhaseOne_gdc.mat SBRef2PhaseOne_gdc   (linear registration result)
 #          PhaseOne_gdc  PhaseTwo_gdc
 #          PhaseOne_gdc_dc  PhaseOne_gdc_dc_jac  PhaseTwo_gdc_dc  PhaseTwo_gdc_dc_jac
 #          SBRef_dc   SBRef_dc_jac
 #          WarpField  Jacobian
-# Output images (not in $WD): 
+# Output images (not in $WD):
 #          ${DistortionCorrectionWarpFieldOutput}  ${JacobianOutput}
 
 ################################################## OPTION PARSING #####################################################
@@ -145,7 +145,7 @@ echo "PWD = `pwd`" >> $WD/log.txt
 echo "date: `date`" >> $WD/log.txt
 echo " " >> $WD/log.txt
 
-########################################## DO WORK ########################################## 
+########################################## DO WORK ##########################################
 
 #check dimensions of phase versus sbref images
 #should we also check spacing info? could be off by tiny fractions, so probably not
@@ -185,7 +185,7 @@ if [ ! $GradientDistortionCoeffs = "NONE" ] ; then
     ${FSLDIR}/bin/fslmaths ${WD}/PhaseTwo_gdc -mul ${WD}/PhaseTwo_gdc_warp_jacobian ${WD}/PhaseTwo_gdc
   fi
   #overwrites inputs, no else needed
-  
+
   #in the below stuff, the jacobians for both phases and sbref are applied unconditionally to a separate _jac image
   #NOTE: "SBref" is actually the input scout, which is actually the _gdc scout, with gdc jacobian applied if applicable
 
@@ -202,7 +202,7 @@ if [ ! $GradientDistortionCoeffs = "NONE" ] ; then
   # Merge both sets of images
   ${FSLDIR}/bin/fslmerge -t ${WD}/BothPhases ${WD}/PhaseOne_gdc ${WD}/PhaseTwo_gdc
 
-else 
+else
   ${FSLDIR}/bin/imcp ${WD}/PhaseOne ${WD}/PhaseOne_gdc
   ${FSLDIR}/bin/imcp ${WD}/PhaseTwo ${WD}/PhaseTwo_gdc
   fslmerge -t ${WD}/BothPhases ${WD}/PhaseOne_gdc ${WD}/PhaseTwo_gdc
@@ -283,7 +283,7 @@ ${FSLDIR}/bin/fslmaths ${WD}/BothPhases -abs -add 1 -mas ${WD}/Mask -dilM -dilM 
 # RUN TOPUP
 # Needs FSL (version 5.0.6 or later)
 # Note: All the jacobian stuff from here onward is related to the TOPUP warp field
-${FSLDIR}/bin/topup --imain=${WD}/BothPhases --datain=$txtfname --config=${TopupConfig} --out=${WD}/Coefficents --iout=${WD}/Magnitudes --fout=${WD}/TopupField --dfout=${WD}/WarpField --rbmout=${WD}/MotionMatrix --jacout=${WD}/Jacobian -v 
+${FSLDIR}/bin/topup --imain=${WD}/BothPhases --datain=$txtfname --config=${TopupConfig} --out=${WD}/Coefficents --iout=${WD}/Magnitudes --fout=${WD}/TopupField --dfout=${WD}/WarpField --rbmout=${WD}/MotionMatrix --jacout=${WD}/Jacobian -v
 
 #Remove Z slice padding if needed
 if [ ! $(($numslice % 2)) -eq "0" ] ; then
@@ -364,20 +364,20 @@ fi
 log_Msg "END: Topup Field Map Generation and Gradient Unwarping"
 echo " END: `date`" >> $WD/log.txt
 
-########################################## QA STUFF ########################################## 
+########################################## QA STUFF ##########################################
 
 if [ -e $WD/qa.txt ] ; then rm -f $WD/qa.txt ; fi
 echo "cd `pwd`" >> $WD/qa.txt
 echo "# Inspect results of various corrections (phase one)" >> $WD/qa.txt
-echo "fslview ${WD}/PhaseOne ${WD}/PhaseOne_gdc ${WD}/PhaseOne_gdc_dc ${WD}/PhaseOne_gdc_dc_jac" >> $WD/qa.txt
+echo "fsleyes ${WD}/PhaseOne ${WD}/PhaseOne_gdc ${WD}/PhaseOne_gdc_dc ${WD}/PhaseOne_gdc_dc_jac" >> $WD/qa.txt
 echo "# Inspect results of various corrections (phase two)" >> $WD/qa.txt
-echo "fslview ${WD}/PhaseTwo ${WD}/PhaseTwo_gdc ${WD}/PhaseTwo_gdc_dc ${WD}/PhaseTwo_gdc_dc_jac" >> $WD/qa.txt
+echo "fsleyes ${WD}/PhaseTwo ${WD}/PhaseTwo_gdc ${WD}/PhaseTwo_gdc_dc ${WD}/PhaseTwo_gdc_dc_jac" >> $WD/qa.txt
 echo "# Check linear registration of Scout to SE EPI" >> $WD/qa.txt
-echo "fslview ${WD}/Phase${SBRefPhase}_gdc ${WD}/SBRef2Phase${SBRefPhase}_gdc" >> $WD/qa.txt
+echo "fsleyes ${WD}/Phase${SBRefPhase}_gdc ${WD}/SBRef2Phase${SBRefPhase}_gdc" >> $WD/qa.txt
 echo "# Inspect results of various corrections to scout" >> $WD/qa.txt
-echo "fslview ${WD}/SBRef ${WD}/SBRef_dc ${WD}/SBRef_dc_jac" >> $WD/qa.txt
+echo "fsleyes ${WD}/SBRef ${WD}/SBRef_dc ${WD}/SBRef_dc_jac" >> $WD/qa.txt
 echo "# Visual check of warpfield and Jacobian" >> $WD/qa.txt
-echo "fslview ${DistortionCorrectionWarpFieldOutput} ${JacobianOutput}" >> $WD/qa.txt
+echo "fsleyes ${DistortionCorrectionWarpFieldOutput} ${JacobianOutput}" >> $WD/qa.txt
 
 
 ##############################################################################################

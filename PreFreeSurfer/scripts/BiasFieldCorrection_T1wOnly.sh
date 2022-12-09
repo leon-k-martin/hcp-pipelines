@@ -16,10 +16,10 @@ Usage() {
 ${script_name}: Tool for bias field correction based on T1w image only
 
 Usage: ${script_name}
-  --workingdir=<working directory> 
-  --T1im=<input T1 image> 
-  [--oT1im=<output T1 image>] 
-  [--oT1brain=<output T1 brain>] 
+  --workingdir=<working directory>
+  --T1im=<input T1 image>
+  [--oT1im=<output T1 image>]
+  [--oT1brain=<output T1 brain>]
   [--bfsigma=<input T1 image>]
 
 EOF
@@ -81,16 +81,16 @@ defaultopt() {
 ################################################## OPTION PARSING #####################################################
 
 # parse arguments
-WD=`getopt1 "--workingdir" $@`  
-T1wImage=`getopt1 "--T1im" $@`  
-T1wBrain=`getopt1 "--T1brain" $@`  
-oBias=`getopt1 "--obias" $@`  
-oT1wImage=`getopt1 "--oT1im" $@`  
-oT1wBrain=`getopt1 "--oT1brain" $@`  
+WD=`getopt1 "--workingdir" $@`
+T1wImage=`getopt1 "--T1im" $@`
+T1wBrain=`getopt1 "--T1brain" $@`
+oBias=`getopt1 "--obias" $@`
+oT1wImage=`getopt1 "--oT1im" $@`
+oT1wBrain=`getopt1 "--oT1brain" $@`
 BiasFieldSmoothingSigma=`getopt1 "--bfsigma" $@`
 
-# A default value of 20 for bias smoothing sigma is the recommended default by FSL 
-BiasFieldSmoothingSigma=`defaultopt $BiasFieldSmoothingSigma 20` 
+# A default value of 20 for bias smoothing sigma is the recommended default by FSL
+BiasFieldSmoothingSigma=`defaultopt $BiasFieldSmoothingSigma 20`
 WDir="$WD.anat"
 
 log_Msg " START: T1wBiasFieldCorrection"
@@ -116,13 +116,13 @@ ${FSLDIR}/bin/fsl_anat -i $T1wImage -o $WD --noreorient --clobber --nocrop --nor
 # Use existing brain mask if one is provided
 
 if [ ! -z ${T1wBrain} ] ; then
-  ${FSLDIR}/bin/fslmaths ${WDir}/T1_biascorr -mas ${T1wBrain} ${WDir}/T1_biascorr_brain  
+  ${FSLDIR}/bin/fslmaths ${WDir}/T1_biascorr -mas ${T1wBrain} ${WDir}/T1_biascorr_brain
   verbose_echo " --> masked T1_biascorr.nii.gz using ${T1wBrain}"
 fi
 
 # Copy data out if output targets provided
 
-if [ ! -z ${oT1wImage} ] ; then 
+if [ ! -z ${oT1wImage} ] ; then
   ${FSLDIR}/bin/imcp ${WDir}/T1_biascorr ${oT1wImage}
   verbose_echo " --> Copied T1_biascorr.nii.gz to ${oT1wImage}.nii.gz"
 fi
@@ -130,7 +130,7 @@ fi
 if [ ! -z ${oT1wBrain} ] ; then
   ${FSLDIR}/bin/imcp ${WDir}/T1_biascorr_brain ${oT1wBrain}
   verbose_echo " --> Copied T1_biascorr_brain.nii.gz to ${oT1wBrain}.nii.gz"
-fi 
+fi
 
 if [ ! -z ${oBias} ] ; then
   ${FSLDIR}/bin/imcp ${WDir}/T1_fast_bias ${oBias}
@@ -147,7 +147,7 @@ echo " END: `date`" >> $WDir/log.txt
 if [ -e $WDir/qa.txt ] ; then rm -f $WDir/qa.txt ; fi
 echo "cd `pwd`" >> $WDir/qa.txt
 echo "# Look at the quality of the bias corrected output (T1w is brain only)" >> $WDir/qa.txt
-echo "fslview $WDir/T1_biascorr_brain.nii.gz" >> $WDir/qa.txt
+echo "fsleyes $WDir/T1_biascorr_brain.nii.gz" >> $WDir/qa.txt
 
 ##############################################################################################
 

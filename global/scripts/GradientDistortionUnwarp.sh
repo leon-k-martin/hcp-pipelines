@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/bash
 
 # Requirements for this script
 #  installed versions of: FSL, gradunwarp (HCP version)
@@ -54,7 +54,7 @@ defaultopt() {
 
 ################################################### OUTPUT FILES #####################################################
 
-# Outputs (in $WD except for those starting with $Output) : 
+# Outputs (in $WD except for those starting with $Output) :
 #        ${BaseName}_vol1    (first 3D image - internal use only)
 #        trilinear           (direct output of gradient_unwarp.py)
 #        fullWarp_abs        (output from gradient_unwarp.py)
@@ -93,7 +93,7 @@ echo "PWD = `pwd`" >> $WD/log.txt
 echo "date: `date`" >> $WD/log.txt
 echo " " >> $WD/log.txt
 
-########################################## DO WORK ########################################## 
+########################################## DO WORK ##########################################
 
 # Extract first volume and run gradient distortion correction on this (all others follow suit as scanner coordinate system is unchanged, even with subject motion)
 ${FSLDIR}/bin/fslroi ${InputFile}.nii.gz $WD/${BaseName}_vol1.nii.gz 0 1
@@ -116,12 +116,12 @@ ${FSLDIR}/bin/applywarp --rel --interp=spline -i $InputFile -r $WD/${BaseName}_v
 log_Msg "END"
 echo " END: `date`" >> $WD/log.txt
 
-########################################## QA STUFF ########################################## 
+########################################## QA STUFF ##########################################
 
 if [ -e $WD/qa.txt ] ; then rm -f $WD/qa.txt ; fi
 echo "cd `pwd`" >> $WD/qa.txt
 echo "# Check that the image output of gradient_unwarp.py is the same as from applywarp" >> $WD/qa.txt
-echo "fslview $WD/trilinear $OutputFile" >> $WD/qa.txt
+echo "fsleyes $WD/trilinear $OutputFile" >> $WD/qa.txt
 echo "# Optional (further) checking - results from fslstats should be very close to zero" >> $WD/qa.txt
 echo "applywarp --rel --interp=trilinear -i $InputFile -r $WD/${BaseName}_vol1.nii.gz -w $OutputTransform -o $WD/qa_aw_tri" >> $WD/qa.txt
 echo "fslmaths $WD/qa_aw_tri -sub $WD/trilinear $WD/diff_tri" >> $WD/qa.txt
