@@ -39,8 +39,6 @@ get_batch_options() {
 
 get_batch_options "$@"
 
-StudyFolder="${HOME}/projects/Pipelines_ExampleData" #Location of Subject folders (named by subjectID)
-Subjlist="100307 100610" #Space delimited list of subject IDs
 EnvironmentScript="${HCPPIPEDIR}/Examples/Scripts/SetUpHCPPipeline_Custom.sh" #Pipeline environment script
 
 if [ -n "${command_line_specified_study_folder}" ]; then
@@ -130,40 +128,24 @@ SCRIPT_NAME=`basename "$0"`
 echo $SCRIPT_NAME
 
 TaskList=()
-TaskList+=(rfMRI_REST1_RL)
-TaskList+=(rfMRI_REST1_LR)
-TaskList+=(rfMRI_REST2_RL)
-TaskList+=(rfMRI_REST2_LR)
-TaskList+=(tfMRI_EMOTION_RL)
-TaskList+=(tfMRI_EMOTION_LR)
-TaskList+=(tfMRI_GAMBLING_RL)
-TaskList+=(tfMRI_GAMBLING_LR)
-TaskList+=(tfMRI_LANGUAGE_RL)
-TaskList+=(tfMRI_LANGUAGE_LR)
-TaskList+=(tfMRI_MOTOR_RL)
-TaskList+=(tfMRI_MOTOR_LR)
-TaskList+=(tfMRI_RELATIONAL_RL)
-TaskList+=(tfMRI_RELATIONAL_LR)
-TaskList+=(tfMRI_SOCIAL_RL)
-TaskList+=(tfMRI_SOCIAL_LR)
-TaskList+=(tfMRI_WM_RL)
-TaskList+=(tfMRI_WM_LR)
+TaskList+=(rest)
+TaskList+=(rest_acq-MoCo)
+PhaseEncodingDir="AP"
 
 # Start or launch pipeline processing for each subject
 for Subject in $Subjlist ; do
   echo "${SCRIPT_NAME}: Processing Subject: ${Subject}"
 
-  for fMRIName in "${TaskList[@]}" ; do
+  for TaskName in "${TaskList[@]}" ; do
+    fMRIName="sub-${Subject}_task-${TaskName}"
     echo "  ${SCRIPT_NAME}: Processing Scan: ${fMRIName}"
 
-	TaskName=`echo ${fMRIName} | sed 's/_[APLR]\+$//'`
 	echo "  ${SCRIPT_NAME}: TaskName: ${TaskName}"
 
 	len=${#fMRIName}
 	echo "  ${SCRIPT_NAME}: len: $len"
 	start=$(( len - 2 ))
 
-	PhaseEncodingDir=${fMRIName:start:2}
 	echo "  ${SCRIPT_NAME}: PhaseEncodingDir: ${PhaseEncodingDir}"
 
 	case ${PhaseEncodingDir} in
@@ -186,11 +168,13 @@ for Subject in $Subjlist ; do
 
 	echo "  ${SCRIPT_NAME}: UnwarpDir: ${UnwarpDir}"
 
-    fMRITimeSeries="${StudyFolder}/${Subject}/unprocessed/3T/${fMRIName}/${Subject}_3T_${fMRIName}.nii.gz"
+    fMRITimeSeries="${StudyFolder}/sub-${Subject}/func/${fMRIName}_bold.nii.gz"
+    fMRITimeSeriesJson="${StudyFolder}/sub-${Subject}/func/${fMRIName}_bold.json"
+
 
 	# A single band reference image (SBRef) is recommended if available
 	# Set to NONE if you want to use the first volume of the timeseries for motion correction
-    fMRISBRef="${StudyFolder}/${Subject}/unprocessed/3T/${fMRIName}/${Subject}_3T_${fMRIName}_SBRef.nii.gz"
+    fMRISBRef="NONE"
 
 	# "Effective" Echo Spacing of fMRI image (specified in *sec* for the fMRI processing)
 	# EchoSpacing = 1/(BWPPPE * ReconMatrixPE)
@@ -198,37 +182,56 @@ for Subject in $Subjlist ; do
 	#   ReconMatrixPE = size of the reconstructed image in the PE dimension
 	# In-plane acceleration, phase oversampling, phase resolution, phase field-of-view, and interpolation
 	# all potentially need to be accounted for (which they are in Siemen's reported BWPPPE)
-    EchoSpacing="0.00058"
+    EchoSpacing=$(grep 'EffectiveEchoSpacing' $fMRITimeSeriesJson | sed -nr 's/.*:(.*),.*/\1/p'| sed "s/ //g")
 
 	# Susceptibility distortion correction method (required for accurate processing)
 	# Values: TOPUP, SiemensFieldMap (same as FIELDMAP), GeneralElectricFieldMap
-    DistortionCorrection="TOPUP"
+    DistortionCorrection="SiemensFieldMap"
 
 	# Receive coil bias field correction method
 	# Values: NONE, LEGACY, or SEBASED
 	#   SEBASED calculates bias field from spin echo images (which requires TOPUP distortion correction)
 	#   LEGACY uses the T1w bias field (method used for 3T HCP-YA data, but non-optimal; no longer recommended).
-	BiasCorrection="SEBASED"
+	BiasCorrection="LEGACY"
 
 	# For the spin echo field map volume with a 'negative' phase encoding direction
 	# (LR in HCP-YA data; AP in 7T HCP-YA and HCP-D/A data)
 	# Set to NONE if using regular FIELDMAP
-    SpinEchoPhaseEncodeNegative="${StudyFolder}/${Subject}/unprocessed/3T/${fMRIName}/${Subject}_3T_SpinEchoFieldMap_LR.nii.gz"
+    SpinEchoPhaseEncodeNegative="NONE"
 
 	# For the spin echo field map volume with a 'positive' phase encoding direction
 	# (RL in HCP-YA data; PA in 7T HCP-YA and HCP-D/A data)
 	# Set to NONE if using regular FIELDMAP
-    SpinEchoPhaseEncodePositive="${StudyFolder}/${Subject}/unprocessed/3T/${fMRIName}/${Subject}_3T_SpinEchoFieldMap_RL.nii.gz"
+    SpinEchoPhaseEncodePositive="NONE"
 
 	# Topup configuration file (if using TOPUP)
 	# Set to NONE if using regular FIELDMAP
     TopUpConfig="${HCPPIPEDIR_Config}/b02b0.cnf"
 
 	# Not using Siemens Gradient Echo Field Maps for susceptibility distortion correction
+    for file in "${StudyFolder}"/sub-${Subject}/fmap/*; do
+			filebase=$(basename "$file")
+			if [[ "$filebase" == *"magnitude1.nii"* ]];then
+    			mag1="$file"
+  			fi
+
+			if [[ "$filebase" == *"magnitude2.nii"* ]];then
+    			mag2="$file"
+  			fi
+
+			if [[ "$filebase" == *"phasediff.nii"* ]];then
+				phasediff="$file"
+  			fi
+
+		done
+
+		magnitude="${mag1/magnitude1/magnitude1+2}"
+		mri_concat --i "$mag1" --i "$mag2" --o "$magnitude"
+
 	# Set following to NONE if using TOPUP
-	MagnitudeInputName="NONE" #Expects 4D Magnitude volume with two 3D volumes (differing echo times)
-    PhaseInputName="NONE" #Expects a 3D Phase difference volume (Siemen's style)
-    DeltaTE="NONE" #2.46ms for 3T, 1.02ms for 7T
+	MagnitudeInputName="${magnitude}" #Expects 4D Magnitude volume with two 3D volumes (differing echo times)
+    PhaseInputName="${phasediff}" #Expects a 3D Phase difference volume (Siemen's style)
+    DeltaTE=2.46 #2.46ms for 3T, 1.02ms for 7T
 
     # Path to General Electric style B0 fieldmap with two volumes
     #   1. field map in degrees

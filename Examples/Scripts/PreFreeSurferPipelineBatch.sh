@@ -238,7 +238,7 @@ main()
   			fi
 
 			if [[ "$filebase" == *"magnitude2.nii"* ]];then
-    			mag3="$file"
+    			mag2="$file"
   			fi
 
 			if [[ "$filebase" == *"phasediff.nii"* ]];then
@@ -428,13 +428,13 @@ main()
 		# Connectom Scanner
 
 		# DICOM field (0019,1018) in s or "NONE" if not used
-		T1wSampleSpacing="NONE"
+		T1wSampleSpacing="0.0000074"
 
 		# DICOM field (0019,1018) in s or "NONE" if not used
-		T2wSampleSpacing="NONE"
+		T2wSampleSpacing="0.0000021"
 
 		# z appears to be the appropriate polarity for the 3D structurals collected on Siemens scanners
-		UnwarpDir="NONE"
+		UnwarpDir="z"
 
 		# Other Config Settings
 
@@ -496,5 +496,9 @@ main()
 	done
 }
 
+mkdir -p "$StudyFolder"/derivatives/hcp-pipelines
+cat <<EOF > "$StudyFolder"/derivatives/hcp-pipelines/dataset_description.json
+{"Name": "HCP Minimal Preprocessing", "BIDSVersion": "1.0.2", "GeneratedBy": [{"Name": "HCP Minimal Preprocessing Pipelines", "Version":"4.7.0"}]}
+EOF
 # Invoke the main function to get things started
 main "$@"
