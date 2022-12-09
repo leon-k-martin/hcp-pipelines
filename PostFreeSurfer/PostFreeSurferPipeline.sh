@@ -43,7 +43,7 @@ PARAMETERs are [ ] = optional; < > = user supplied value
 "
     #automatic argument descriptions
     opts_ShowArguments
-    
+
     #do not use exit, the parsing code takes care of it
 }
 
@@ -157,9 +157,9 @@ OutputOrigT2wToStandard="OrigT2w2standard.nii.gz"
 BiasFieldOutput="BiasField"
 Jacobian="NonlinearRegJacobians.nii.gz"
 
-T1wFolder="$StudyFolder"/"$Subject"/"$T1wFolder"
-T2wFolder="$StudyFolder"/"$Subject"/"$T2wFolder"
-AtlasSpaceFolder="$StudyFolder"/"$Subject"/"$AtlasSpaceFolder"
+T1wFolder="$StudyFolder"/derivatives/hcp-pipelines/"${Subject}"/"$T1wFolder"
+T2wFolder="$StudyFolder"/derivatives/hcp-pipelines/"${Subject}"/"$T2wFolder"
+AtlasSpaceFolder="$StudyFolder"/derivatives/hcp-pipelines/"${Subject}"/"$AtlasSpaceFolder"
 FreeSurferFolder="$T1wFolder"/"$FreeSurferFolder"
 AtlasTransform="$AtlasSpaceFolder"/xfms/"$AtlasTransform"
 InverseAtlasTransform="$AtlasSpaceFolder"/xfms/"$InverseAtlasTransform"
@@ -287,7 +287,8 @@ if ((doQC)); then
     "$PipelineScripts"/GenerateStructuralScenes.sh \
         --study-folder="$StudyFolder" \
         --subject="$Subject" \
-        --output-folder="$AtlasSpaceFolder/StructuralQC"
+        --output-folder="$AtlasSpaceFolder/StructuralQC" \
+        --verbose=true
 fi
 
 verbose_green_echo "---> Finished ${log_ToolName}"

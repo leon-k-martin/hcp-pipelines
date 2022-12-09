@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/bash
 
 # Requirements for this script
 #  installed versions of: FSL, Connectome Workbench (wb_command)
@@ -74,13 +74,13 @@ defaultopt() {
 
 ################################################### OUTPUT FILES #####################################################
 
-# Output images (in $WD): 
-#      T1wmulT2w  T1wmulT2w_brain  T1wmulT2w_brain_norm  
-#      SmoothNorm_sX  T1wmulT2w_brain_norm_sX  
-#      T1wmulT2w_brain_norm_modulate  T1wmulT2w_brain_norm_modulate_mask  bias_raw   
-# Output images (not in $WD): 
-#      $OutputBiasField 
-#      $OutputT1wRestoredBrainImage $OutputT1wRestoredImage 
+# Output images (in $WD):
+#      T1wmulT2w  T1wmulT2w_brain  T1wmulT2w_brain_norm
+#      SmoothNorm_sX  T1wmulT2w_brain_norm_sX
+#      T1wmulT2w_brain_norm_modulate  T1wmulT2w_brain_norm_modulate_mask  bias_raw
+# Output images (not in $WD):
+#      $OutputBiasField
+#      $OutputT1wRestoredBrainImage $OutputT1wRestoredImage
 #      $OutputT2wRestoredBrainImage $OutputT2wRestoredImage
 
 ################################################## OPTION PARSING #####################################################
@@ -115,7 +115,7 @@ echo "PWD = `pwd`" >> $WD/log.txt
 echo "date: `date`" >> $WD/log.txt
 echo " " >> $WD/log.txt
 
-########################################## DO WORK ########################################## 
+########################################## DO WORK ##########################################
 
 # Form sqrt(T1w*T2w), mask this and normalise by the mean
 verbose_echo " --> Forming sqrt(T1w*T2w), masking this and normalising by the mean"
@@ -161,16 +161,17 @@ verbose_green_echo "---> Finished Bias Field Correction"
 log_Msg "END: BiasFieldCorrection"
 echo " END: `date`" >> $WD/log.txt
 
-########################################## QA STUFF ########################################## 
+########################################## QA STUFF ##########################################
 if [ -e $WD/qa.txt ] ; then rm -f $WD/qa.txt ; fi
 echo "cd `pwd`" >> $WD/qa.txt
 echo "# Look at the quality of the bias corrected output (T1w is brain only)" >> $WD/qa.txt
-echo "fslview $T1wImageBrain $OutputT1wRestoredBrainImage" >> $WD/qa.txt
-echo "fslview $T2wImage $OutputT2wRestoredImage" >> $WD/qa.txt
+echo "fsleyes render -of ${OutputT1wRestoredBrainImage}.png $T1wImageBrain $OutputT1wRestoredBrainImage" >> $WD/qa.txt
+echo "fsleyes render -of ${OutputT2wRestoredImage}.png $T2wImage $OutputT2wRestoredImage" >> $WD/qa.txt
+
 echo "# Optional debugging (multiplied image + masked + normalised versions)" >> $WD/qa.txt
-echo "fslview $WD/T1wmulT2w.nii.gz $WD/T1wmulT2w_brain_norm.nii.gz $WD/T1wmulT2w_brain_norm_modulate_mask -l Red -t 0.5" >> $WD/qa.txt
+echo "fsleyes render -of $WD/T1wmulT2w_brain_norm.png $WD/T1wmulT2w.nii.gz $WD/T1wmulT2w_brain_norm.nii.gz $WD/T1wmulT2w_brain_norm_modulate_mask --cm Red --alpha 50" >> $WD/qa.txt
 echo "# Optional debugging (smoothed version, extrapolated version)" >> $WD/qa.txt
-echo "fslview $WD/T1wmulT2w_brain_norm_s${BiasFieldSmoothingSigma}.nii.gz $WD/bias_raw" >> $WD/qa.txt
+echo "fsleyes render -of $WD/T1wmulT2w_brain_norm_s${BiasFieldSmoothingSigma}.png $WD/T1wmulT2w_brain_norm_s${BiasFieldSmoothingSigma}.nii.gz $WD/bias_raw" >> $WD/qa.txt
 
 ##############################################################################################
 

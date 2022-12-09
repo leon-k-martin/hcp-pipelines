@@ -429,15 +429,15 @@ log_Msg "CustomBrain: ${CustomBrain}"
 log_Msg "ProcessingMode: ${ProcessingMode}"
 
 # Naming Conventions
-T1wImage="sub-${Subject}_T1w"
+T1wImage="T1w"
 T1wFolder="T1w" #Location of T1w images
-T2wImage="sub-${Subject}_T2w"
+T2wImage="T2w"
 T2wFolder="T2w" #Location of T2w images
 AtlasSpaceFolder="MNINonLinear"
 
 # Build Paths
 T1wFolder=${StudyFolder}/derivatives/hcp-pipelines/${Subject}/${T1wFolder}
-T2wFolder=${StudyFolder}/derivatives/hcp-pipelines//${Subject}/${T2wFolder}
+T2wFolder=${StudyFolder}/derivatives/hcp-pipelines/${Subject}/${T2wFolder}
 AtlasSpaceFolder=${StudyFolder}/derivatives/hcp-pipelines/${Subject}/${AtlasSpaceFolder}
 
 log_Msg "T1wFolder: $T1wFolder"
